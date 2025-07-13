@@ -295,10 +295,10 @@
       }
     }
 
-    .msg-row.lilo {
+    .msg-row.Lilo {
       justify-content: flex-end;
     }
-    .msg-row.zizi {
+    .msg-row.Zizi {
       justify-content: flex-start;
     }
 
@@ -325,7 +325,7 @@
       color: var(--text-primary);
     }
 
-    .msg.lilo {
+    .msg.Lilo {
       background: var(--gradient-primary);
       color: white;
       border-radius: 24px 24px 8px 24px;
@@ -333,7 +333,7 @@
       border: 1px solid rgba(255,255,255,0.2);
     }
 
-    .msg.zizi {
+    .msg.Zizi {
       background: var(--bg-glass-strong);
       color: var(--text-primary);
       border-radius: 24px 24px 24px 8px;
@@ -394,12 +394,12 @@
       transform: scale(1.1);
     }
 
-    .msg.lilo .reply-indicator {
+    .msg.Lilo .reply-indicator {
       border-left-color: rgba(255, 255, 255, 0.3);
       background: rgba(255, 255, 255, 0.1);
     }
 
-    .msg.zizi .reply-indicator {
+    .msg.Zizi .reply-indicator {
       border-left-color: var(--primary);
       background: rgba(255, 255, 255, 0.05);
     }
@@ -434,11 +434,11 @@
       max-height: 40px;
     }
 
-    .msg-row.lilo .reply-button {
+    .msg-row.Lilo .reply-button {
       right: calc(100% + 8px);
     }
 
-    .msg-row.zizi .reply-button {
+    .msg-row.Zizi .reply-button {
       left: calc(100% + 8px);
     }
 
@@ -460,11 +460,11 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .msg.lilo .reply-button {
+    .msg.Lilo .reply-button {
       background: rgba(255, 255, 255, 0.15);
     }
 
-    .msg.zizi .reply-button {
+    .msg.Zizi .reply-button {
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -510,7 +510,7 @@
       letter-spacing: -0.02em;
     }
 
-    .msg.lilo .msg-timestamp {
+    .msg.Lilo .msg-timestamp {
       color: rgba(255,255,255,0.5);
     }
 
@@ -525,14 +525,14 @@
       border-color: var(--primary);
     }
 
-    .msg.lilo:hover {
+    .msg.Lilo:hover {
       background: var(--gradient-secondary);
       box-shadow: 
         var(--shadow-medium),
         0 0 30px var(--primary-glow);
     }
 
-    .msg.zizi:hover {
+    .msg.Zizi:hover {
       background: var(--bg-glass-strong);
       box-shadow: var(--shadow-medium);
     }
@@ -543,7 +543,7 @@
       border-color: var(--primary);
     }
 
-    .msg.lilo:hover {
+    .msg.Lilo:hover {
       background: var(--gradient-secondary);
       box-shadow: 
         var(--shadow-medium),
@@ -842,11 +842,11 @@
       </div>
       <form id="loginForm" class="login-form">
         <div class="user-buttons">
-          <button type="button" class="user-btn" data-user="lilo" data-email="lilo@lizi.app">
+          <button type="button" class="user-btn" data-user="Lilo" data-email="lilo@lizi.app">
             <div class="user-avatar">L</div>
             <div class="user-name">Lilo</div>
           </button>
-          <button type="button" class="user-btn" data-user="zizi" data-email="zizi@lizi.app">
+          <button type="button" class="user-btn" data-user="Zizi" data-email="zizi@lizi.app">
             <div class="user-avatar">Z</div>
             <div class="user-name">Zizi</div>
           </button>
@@ -1225,27 +1225,26 @@
 
   async function loginUser(email, password) {
     try {
-      console.log("Attempting login for:", email);
+
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       currentUser = userCredential.user;
-      username = email.split('@')[0];
-      console.log("Login successful for:", username);
-      if (username === 'zizi') {
+      username = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1).toLowerCase();
+      
+      if (username === 'Zizi') {
         applyTheme(ziziTheme);
-      } else if (username === 'lilo') {
+      } else if (username === 'Lilo') {
         applyTheme(liloTheme);
       }
       return true;
     } catch (error) {
-      console.error("Login error:", error);
       if (error.code === 'auth/wrong-password') {
-        console.log("Wrong password");
+        
       } else if (error.code === 'auth/user-not-found') {
-        console.log("User not found");
+        
       } else if (error.code === 'auth/network-request-failed') {
-        console.log("Network error");
+        
       } else {
-        console.log("Other error:", error.code);
+        
       }
       return false;
     }
@@ -1258,7 +1257,6 @@
       username = null;
       showLoginScreen();
     } catch (error) {
-      console.error("Logout error:", error);
     }
   }
 
@@ -1273,7 +1271,7 @@
     }
     
     loginTimeout = setTimeout(() => {
-      console.log("Login screen timeout reached");
+  
     }, 15000);
   }
 
@@ -1366,7 +1364,6 @@
           passwordInput.focus();
         }
       } catch (error) {
-        console.error("Login error:", error);
         const errorMsg = document.createElement("div");
         errorMsg.className = "error-message";
         errorMsg.textContent = "Network error. Please check your connection and try again.";
@@ -1389,13 +1386,13 @@
 
 
   onAuthStateChanged(auth, (user) => {
-    console.log("Auth state changed:", user ? "logged in" : "logged out");
+    
     if (user) {
       currentUser = user;
-      username = user.email.split('@')[0];
-      if (username === 'zizi') {
+              username = user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1).toLowerCase();
+      if (username === 'Zizi') {
         applyTheme(ziziTheme);
-      } else if (username === 'lilo') {
+      } else if (username === 'Lilo') {
         applyTheme(liloTheme);
       }
       hideLoginScreen();
@@ -1451,7 +1448,6 @@
           chatDiv.scrollTop = chatDiv.scrollHeight;
         },
         (error) => {
-          console.error("Real-time listener error:", error);
           
           setTimeout(() => {
             if (unsubscribe) {
@@ -1468,12 +1464,12 @@
   function createMessageElement(data, messageId) {
     const msgEl = document.createElement("div");
     msgEl.classList.add("msg-row");
-    const isCurrentUser = data.sender.toLowerCase() === username;
-    msgEl.classList.add(isCurrentUser ? "lilo" : "zizi");
+    const isCurrentUser = data.sender === username;
+    msgEl.classList.add(isCurrentUser ? "Lilo" : "Zizi");
     msgEl.setAttribute("data-message-id", messageId);
 
     const textEl = document.createElement("div");
-    textEl.className = "msg " + (isCurrentUser ? "lilo" : "zizi");
+    textEl.className = "msg " + (isCurrentUser ? "Lilo" : "Zizi");
     
 
     const msgContent = document.createElement("div");
@@ -1687,7 +1683,7 @@
     try {
       const messageData = {
         text,
-        sender: username,
+        sender: username.charAt(0).toUpperCase() + username.slice(1).toLowerCase(),
         timestamp: serverTimestamp()
       };
       
@@ -1751,18 +1747,18 @@
     row.className = 'msg-row ' + sender;
     const avatar = document.createElement('div');
     avatar.className = 'msg-avatar ' + sender;
-    avatar.textContent = sender === 'lilo' ? 'L' : 'Z';
+    avatar.textContent = sender === 'Lilo' ? 'L' : 'Z';
     const msg = document.createElement('div');
     msg.className = 'msg ' + sender;
     msg.textContent = text;
-    if(sender === 'lilo') {
+    if(sender === 'Lilo') {
       row.appendChild(msg);
       row.appendChild(avatar);
     } else {
       row.appendChild(avatar);
       row.appendChild(msg);
     }
-    chat.appendChild(row);
+    chatDiv.appendChild(row);
     setTimeout(() => row.classList.add('show'), 10);
     scrollToBottom();
   }
