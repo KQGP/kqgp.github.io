@@ -796,11 +796,6 @@
     </div>
     
     <div id="chat">
-      <div id="retry-container" style="display: none; text-align: center; padding: 20px;">
-        <button id="retry-btn" style="background: var(--gradient-primary); border: none; padding: 12px 24px; border-radius: 8px; color: white; cursor: pointer;">
-          Retry Loading Messages
-        </button>
-      </div>
     </div>
     
     <form id="msgForm">
@@ -838,8 +833,6 @@
   const msgForm = document.getElementById("msgForm");
   const msgInput = document.getElementById("msgInput");
   const replyContainer = document.getElementById("replyContainer");
-  const retryContainer = document.getElementById("retry-container");
-  const retryBtn = document.getElementById("retry-btn");
 
 
   const loginContainer = document.createElement("div");
@@ -1366,12 +1359,8 @@
         
         if (success) {
           hideLoginScreen();
-          // Add delay for mobile devices
-          const delay = isMobile ? 1000 : 500;
-          setTimeout(() => {
-            startRealtimeListener();
-            msgInput.focus();
-          }, delay);
+          startRealtimeListener();
+          setTimeout(() => msgInput.focus(), 500);
         } else {
           const errorMsg = document.createElement("div");
           errorMsg.className = "error-message";
@@ -1414,22 +1403,15 @@
         applyTheme(liloTheme);
       }
       hideLoginScreen();
-      
-      // Add delay for mobile devices to ensure proper initialization
-      const delay = isMobile ? 1000 : 500;
+      startRealtimeListener();
       setTimeout(() => {
-        startRealtimeListener();
         if (msgInput) {
           msgInput.focus();
         }
-      }, delay);
+      }, 500);
     } else {
       currentUser = null;
       username = null;
-      if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-      }
       showLoginScreen();
     }
   });
@@ -1443,53 +1425,6 @@
   let isLoading = false;
   let isOnline = navigator.onLine;
   let replyingTo = null;
-  
-  function showErrorMessage(message) {
-    // Remove existing error message
-    const existingError = document.querySelector('.connection-error');
-    if (existingError) {
-      existingError.remove();
-    }
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'connection-error';
-    errorDiv.textContent = message;
-    errorDiv.style.cssText = `
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(239, 68, 68, 0.9);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      max-width: 90vw;
-      text-align: center;
-    `;
-    
-    document.body.appendChild(errorDiv);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (errorDiv.parentNode) {
-        errorDiv.remove();
-      }
-    }, 5000);
-  }
-  
-  function showRetryButton() {
-    retryContainer.style.display = 'block';
-  }
-  
-  function hideRetryButton() {
-    retryContainer.style.display = 'none';
-  }
 
   const msgsCol = collection(db, "messages");
   
@@ -1500,25 +1435,10 @@
   function startRealtimeListener() {
     if (!currentUser) return;
     
-    console.log("Starting real-time listener for user:", username);
-    
-    // Add timeout to detect if connection is taking too long
-    const connectionTimeout = setTimeout(() => {
-      console.log("Connection timeout - showing retry button");
-      showRetryButton();
-      showErrorMessage("Connection is taking longer than expected. You can retry manually.");
-    }, 15000); // 15 seconds timeout
-    
     try {
       unsubscribe = onSnapshot(msgsQuery, 
         (snapshot) => {
-          console.log("Received snapshot with", snapshot.docs.length, "messages");
-          clearTimeout(connectionTimeout);
-          hideRetryButton();
-          
-          // Clear chat but preserve retry container
-          const messages = chatDiv.querySelectorAll('.msg-row');
-          messages.forEach(msg => msg.remove());
+          chatDiv.innerHTML = '';
           
           const reversedDocs = [...snapshot.docs].reverse();
           
@@ -1537,10 +1457,6 @@
         (error) => {
           console.error("Real-time listener error:", error);
           
-          // Show error message to user
-          showErrorMessage("Connection error. Retrying...");
-          showRetryButton();
-          
           setTimeout(() => {
             if (unsubscribe) {
               unsubscribe();
@@ -1550,8 +1466,6 @@
         }
       );
     } catch (error) {
-      console.error("Error starting real-time listener:", error);
-      showErrorMessage("Failed to connect. Please refresh the page.");
     }
   }
 
@@ -1690,8 +1604,6 @@
         lastMessage = snapshot.docs[snapshot.docs.length - 1];
       }
     } catch (error) {
-      console.error("Error loading more messages:", error);
-      showErrorMessage("Failed to load more messages. Please try again.");
     } finally {
       isLoading = false;
     }
@@ -1758,15 +1670,6 @@
     }
   });
   
-  // Add retry button event listener
-  retryBtn.addEventListener('click', () => {
-    console.log("Retry button clicked");
-    hideRetryButton();
-    if (currentUser) {
-      startRealtimeListener();
-    }
-  });
-  
 
   msgInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1812,24 +1715,16 @@
       clearReply();
       
     } catch (error) {
-      console.error("Error sending message:", error);
-      showErrorMessage("Failed to send message. Please try again.");
+      alert("Failed to send message. Please try again.");
     } finally {
       submitBtn.textContent = originalText;
       submitBtn.disabled = false;
     }
   });
 
-  // Mobile detection and handling
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  console.log("Device type:", isMobile ? "Mobile" : "Desktop");
-  
   if (navigator.connection) {
     const connection = navigator.connection;
-    console.log("Connection type:", connection.effectiveType);
     if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
-      console.log("Slow connection detected");
-      showErrorMessage("Slow connection detected. Messages may load slowly.");
     }
   }
 
@@ -1841,21 +1736,10 @@
 
   window.addEventListener('online', () => {
     isOnline = true;
-    console.log("Device came online");
-    showErrorMessage("Connection restored!");
-    
-    // Restart real-time listener if user is logged in
-    if (currentUser && !unsubscribe) {
-      setTimeout(() => {
-        startRealtimeListener();
-      }, 1000);
-    }
   });
 
   window.addEventListener('offline', () => {
     isOnline = false;
-    console.log("Device went offline");
-    showErrorMessage("No internet connection");
   });
 
 
