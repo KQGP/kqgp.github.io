@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KQL Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Montserrat', sans-serif; }
+    .glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.12);
+    }
+    .gradient {
+      background: linear-gradient(90deg, #6366f1 0%, #a21caf 100%);
+    }
+    .card {
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px 0 rgba(99,102,241,0.18);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .fadein { animation: fadein 0.5s; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(16px);} to { opacity: 1; transform: none; } }
+    .modal-glass {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px 0 rgba(99,102,241,0.18);
+    }
+    /* --- Mobile Tweaks --- */
+    @media (max-width: 640px) {
+      .dashboard-btns {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100%;
+      }
+      .dashboard-btns button {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.75rem 0;
+      }
+      .category-section {
+        margin-bottom: 1.5rem !important;
+      }
+      .category-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+        padding: 1rem 0.75rem !important;
+      }
+      .category-header .flex.items-center.gap-2 {
+        margin-top: 0.5rem;
+      }
+      .accordion-content ul {
+        padding-left: 0 !important;
+      }
+      .accordion-content li {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+        padding: 0.75rem 0.5rem !important;
+      }
+      .accordion-content .flex.gap-2.items-center.ml-4 {
+        margin-left: 0 !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+      }
+      .accordion-content .edit-link, .accordion-content .delete-link {
+        font-size: 0.9rem !important;
+        padding: 0.25rem 0.5rem !important;
+      }
+      .accordion-content .move-up-link, .accordion-content .move-down-link, .accordion-content .toggle-hide-link {
+        font-size: 1rem !important;
+      }
+      .accordion-content .text-xs {
+        font-size: 0.8rem !important;
+      }
+      .accordion-content .text-sm {
+        font-size: 0.9rem !important;
+      }
+      .accordion-content img {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen">
+  <header class="gradient py-10 px-4 flex flex-col items-center justify-center shadow-lg">
+    <div class="flex flex-col items-center gap-2">
+      <span class="text-5xl font-extrabold text-white tracking-tight drop-shadow-lg">KQLs</span>
+      <span class="text-lg font-semibold text-indigo-100 tracking-widest">Dashboard</span>
+    </div>
+    <button id="logout-btn" class="absolute top-6 right-8 bg-white/80 hover:bg-indigo-100 p-3 rounded-full text-indigo-600 border border-indigo-200 shadow transition-colors hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
+    </button>
+  </header>
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <div id="auth-section" class="flex flex-col items-center justify-center min-h-[60vh]">
+      <form id="login-form" class="glass border border-indigo-100 rounded-2xl shadow-lg p-10 w-full max-w-md fadein">
+        <h2 class="text-3xl font-bold text-center mb-8 text-indigo-700">Admin Login</h2>
+        <div class="flex flex-col gap-6">
+          <input type="email" id="email" placeholder="Email" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg" required />
+          <input type="password" id="password" placeholder="Password" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg" required />
+          <button type="submit" class="px-5 py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition text-lg">Sign In</button>
+          <div id="login-error" class="text-red-500 text-sm text-center"></div>
+        </div>
+      </form>
+    </div>
+    <div id="dashboard-section" style="display:none;">
+      <div class="flex justify-center mb-10">
+        <div class="glass rounded-full px-6 py-3 flex items-center w-full max-w-xl shadow-lg border border-indigo-100 focus-within:ring-2 focus-within:ring-indigo-400">
+          <svg class="h-6 w-6 text-indigo-400 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-2-2"/></svg>
+          <input id="admin-search" type="text" placeholder="Search links..." class="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-100 placeholder-gray-400 text-lg" />
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 my-8">
+        <h2 class="text-2xl font-bold text-indigo-700">Manage Links</h2>
+        <div class="flex gap-3 dashboard-btns w-full md:w-auto">
+          <button id="add-link-btn" class="bg-indigo-600 text-white rounded-xl px-5 py-3 font-bold hover:bg-indigo-700 transition focus:outline-none shadow">Add Link</button>
+          <button id="add-category-btn" class="bg-purple-600 text-white rounded-xl px-5 py-3 font-bold hover:bg-purple-700 transition focus:outline-none shadow">Add Category</button>
+          <button id="edit-categories-btn" class="bg-green-600 text-white rounded-xl px-5 py-3 font-bold hover:bg-green-700 transition focus:outline-none shadow">Edit Categories</button>
+        </div>
+      </div>
+      <div id="admin-loading" class="flex flex-col gap-8 my-16">
+        <div class="animate-pulse h-8 w-1/4 bg-indigo-200 rounded"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="animate-pulse h-24 bg-purple-200 rounded-xl"></div>
+          <div class="animate-pulse h-24 bg-pink-200 rounded-xl"></div>
+        </div>
+      </div>
+      <div id="admin-categories" class="mt-10"></div>
+    </div>
+    <div id="modal-bg" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-20 hidden">
+      <div id="modal" class="modal-glass border border-indigo-100 rounded-2xl shadow-lg p-10 w-full max-w-lg relative fadein">
+        <button id="modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <form id="modal-form" class="flex flex-col gap-6">
+          <h3 id="modal-title" class="text-2xl font-bold mb-2 text-indigo-700">Add Link</h3>
+          <select id="modal-category" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg" required></select>
+          <input type="text" id="modal-name" placeholder="Link Name" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg" required />
+          <input type="url" id="modal-url" placeholder="Link URL" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg" required />
+          <textarea id="modal-desc" placeholder="Description or tags (comma separated)" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"></textarea>
+          <button type="submit" class="px-5 py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition text-lg">Save</button>
+          <div id="modal-error" class="text-red-500 text-sm text-center"></div>
+        </form>
+      </div>
+    </div>
+    <div id="category-modal-bg" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-20 hidden">
+      <div id="category-modal" class="modal-glass border border-purple-100 rounded-2xl shadow-lg p-10 w-full max-w-lg relative fadein">
+        <button id="category-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-purple-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <form id="category-modal-form" class="flex flex-col gap-6">
+          <h3 class="text-2xl font-bold mb-2 text-purple-700">Add Category</h3>
+          <input type="text" id="category-modal-input" placeholder="New Category" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 text-lg" required />
+          <input type="color" id="category-modal-color" value="#6366f1" class="w-14 h-10 p-0 border-0 bg-transparent cursor-pointer" title="Pick category color" />
+          <button type="submit" class="px-5 py-4 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition text-lg">Add Category</button>
+          <div id="category-modal-error" class="text-red-500 text-sm text-center"></div>
+        </form>
+      </div>
+    </div>
+    <div id="edit-categories-modal-bg" class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-20 hidden">
+      <div id="edit-categories-modal" class="modal-glass border border-green-100 rounded-2xl shadow-lg p-10 w-full max-w-lg relative fadein">
+        <button id="edit-categories-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-green-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <form id="edit-categories-modal-form" class="flex flex-col gap-6">
+          <h3 class="text-2xl font-bold mb-2 text-green-700">Edit Category</h3>
+          <select id="edit-categories-dropdown" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 text-lg" required>
+            <option value="">Select a category to edit...</option>
+          </select>
+          <input type="text" id="edit-categories-name" placeholder="Category Name" class="rounded-xl border border-gray-300 px-5 py-4 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400 text-lg" required />
+          <div class="flex items-center gap-4">
+            <label class="text-sm font-medium text-gray-700">Color:</label>
+            <input type="color" id="edit-categories-color" value="#6366f1" class="w-14 h-10 p-0 border-0 bg-transparent cursor-pointer" title="Pick category color" />
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 px-5 py-4 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition text-lg">Update</button>
+            <button type="button" id="delete-category-btn" class="px-5 py-4 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition text-lg">Delete</button>
+          </div>
+          <div id="edit-categories-modal-error" class="text-red-500 text-sm text-center"></div>
+        </form>
+      </div>
+    </div>
+    <div id="toast" class="fixed bottom-8 right-8 z-50 hidden"></div>
+  </main>
+  <footer class="text-center text-xs text-gray-400 py-8">&copy; <span id="year"></span> Made By Khalil Alqisy (KQG)</footer>
+  <script type="module">
+    import { db, auth } from './firebase-config.js';
+    import {
+      collection, getDocs, doc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import {
+      signInWithEmailAndPassword, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const authSection = document.getElementById('auth-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const adminLoading = document.getElementById('admin-loading');
+    const adminCategories = document.getElementById('admin-categories');
+    const modalBg = document.getElementById('modal-bg');
+    const modal = document.getElementById('modal');
+    const modalForm = document.getElementById('modal-form');
+    const modalTitle = document.getElementById('modal-title');
+    const modalCategory = document.getElementById('modal-category');
+    const modalName = document.getElementById('modal-name');
+    const modalUrl = document.getElementById('modal-url');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalError = document.getElementById('modal-error');
+    const modalClose = document.getElementById('modal-close');
+    const toast = document.getElementById('toast');
+    // Add Category Modal
+    const categoryModalBg = document.getElementById('category-modal-bg');
+    const categoryModal = document.getElementById('category-modal');
+    const categoryModalForm = document.getElementById('category-modal-form');
+    const categoryModalInput = document.getElementById('category-modal-input');
+    const categoryModalError = document.getElementById('category-modal-error');
+    const categoryModalClose = document.getElementById('category-modal-close');
+    const categoryModalColor = document.getElementById('category-modal-color');
+    // Edit Categories Modal
+    const editCategoriesBtn = document.getElementById('edit-categories-btn');
+    const editCategoriesModalBg = document.getElementById('edit-categories-modal-bg');
+    const editCategoriesModal = document.getElementById('edit-categories-modal');
+    const editCategoriesModalForm = document.getElementById('edit-categories-modal-form');
+    const editCategoriesDropdown = document.getElementById('edit-categories-dropdown');
+    const editCategoriesName = document.getElementById('edit-categories-name');
+    const editCategoriesColor = document.getElementById('edit-categories-color');
+    const editCategoriesModalError = document.getElementById('edit-categories-modal-error');
+    const editCategoriesModalClose = document.getElementById('edit-categories-modal-close');
+    const deleteCategoryBtn = document.getElementById('delete-category-btn');
+
+    // State
+    let editing = null; // {linkId}
+    let allCategories = [];
+    let allLinks = [];
+    let openCategory = null;
+    let adminSearchTerm = '';
+    const adminSearchInput = document.getElementById('admin-search');
+    if (adminSearchInput) {
+      adminSearchInput.addEventListener('input', e => {
+        adminSearchTerm = e.target.value.toLowerCase();
+        renderAdminCategories(allCategories, allLinks);
+      });
+    }
+    let focusedCatIdx = 0;
+    let focusedLinkIdx = 0;
+    function focusCategory(idx) {
+      const catSections = adminCategories.querySelectorAll('section');
+      if (catSections[idx]) {
+        catSections[idx].querySelector('button[aria-expanded]').focus();
+        focusedCatIdx = idx;
+        focusedLinkIdx = 0;
+      }
+    }
+    function focusLink(catIdx, linkIdx) {
+      const catSections = adminCategories.querySelectorAll('section');
+      if (catSections[catIdx]) {
+        const links = catSections[catIdx].querySelectorAll('li .edit-link');
+        if (links[linkIdx]) {
+          links[linkIdx].focus();
+          focusedCatIdx = catIdx;
+          focusedLinkIdx = linkIdx;
+        }
+      }
+    }
+    adminCategories.addEventListener('keydown', e => {
+      const catSections = adminCategories.querySelectorAll('section');
+      if (!catSections.length) return;
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (document.activeElement.getAttribute('aria-expanded')) {
+          // Move to first link in this category
+          focusLink(focusedCatIdx, 0);
+        } else {
+          // Move to next link or next category
+          const links = catSections[focusedCatIdx].querySelectorAll('li .edit-link');
+          if (focusedLinkIdx < links.length - 1) {
+            focusLink(focusedCatIdx, focusedLinkIdx + 1);
+          } else if (focusedCatIdx < catSections.length - 1) {
+            focusCategory(focusedCatIdx + 1);
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (document.activeElement.classList.contains('edit-link')) {
+          if (focusedLinkIdx > 0) {
+            focusLink(focusedCatIdx, focusedLinkIdx - 1);
+          } else {
+            focusCategory(focusedCatIdx);
+          }
+        } else if (focusedCatIdx > 0) {
+          focusCategory(focusedCatIdx - 1);
+        }
+      } else if (e.key === 'Enter') {
+        if (document.activeElement.classList.contains('edit-link')) {
+          document.activeElement.click();
+        } else if (document.activeElement.getAttribute('aria-expanded')) {
+          catSections[focusedCatIdx].querySelector('button[aria-expanded]').click();
+        }
+      }
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authSection.style.display = 'none';
+        dashboardSection.style.display = '';
+        logoutBtn.classList.remove('hidden');
+        loadCategoriesAndLinks();
+      } else {
+        authSection.style.display = '';
+        dashboardSection.style.display = 'none';
+        logoutBtn.classList.add('hidden');
+      }
+    });
+
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      try {
+        await signInWithEmailAndPassword(auth, loginForm.email.value, loginForm.password.value);
+      } catch (err) {
+        loginError.textContent = err.message;
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => signOut(auth));
+
+    // --- Optimistic UI helpers ---
+    function optimisticUpdate(fn, revertFn, toastMsg) {
+      let timeout = setTimeout(() => showToast('Saving...', 'info'), 400);
+      return fn().then(() => {
+        clearTimeout(timeout);
+        if (toastMsg) showToast(toastMsg);
+      }).catch(err => {
+        clearTimeout(timeout);
+        revertFn && revertFn();
+        showToast('Failed to save. Please try again.', 'error');
+      });
+    }
+    // --- Reorder helpers ---
+    function moveItem(arr, from, to) {
+      const a = arr.slice();
+      a.splice(to, 0, a.splice(from, 1)[0]);
+      return a;
+    }
+    async function updateCategoryOrder(newOrder) {
+      await Promise.all(newOrder.map((cat, idx) => updateDoc(doc(db, 'categories', cat.id), { order: idx })));
+    }
+    async function updateLinkOrder(catId, newOrder) {
+      await Promise.all(newOrder.map((link, idx) => updateDoc(doc(db, 'links', link.id), { order: idx })));
+    }
+    // --- Add Category Modal logic ---
+    function openCategoryModal(editCat = null) {
+      categoryModalInput.value = editCat ? editCat.name : '';
+      categoryModalColor.value = editCat && editCat.color ? editCat.color : '#6366f1';
+      categoryModalError.textContent = '';
+      categoryModalBg.classList.remove('hidden');
+      setTimeout(() => categoryModal.classList.add('modal-anim'), 10);
+      categoryModalForm.querySelector('button[type="submit"]').disabled = false;
+      categoryModalForm.querySelector('button[type="submit"]').innerHTML = editCat ? 'Save' : 'Add Category';
+      categoryModalForm.dataset.editing = editCat ? editCat.id : '';
+    }
+    function closeCategoryModal() {
+      categoryModal.classList.remove('modal-anim');
+      setTimeout(() => categoryModalBg.classList.add('hidden'), 200);
+    }
+    categoryModalClose.onclick = closeCategoryModal;
+    categoryModalBg.onclick = (e) => { if (e.target === categoryModalBg) closeCategoryModal(); };
+    
+    // --- Edit Categories Modal logic ---
+    function openEditCategoriesModal() {
+      // Populate dropdown with all categories
+      editCategoriesDropdown.innerHTML = '<option value="">Select a category to edit...</option>';
+      allCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        editCategoriesDropdown.appendChild(option);
+      });
+      
+      // Reset form
+      editCategoriesName.value = '';
+      editCategoriesColor.value = '#6366f1';
+      editCategoriesModalError.textContent = '';
+      editCategoriesModalBg.classList.remove('hidden');
+      setTimeout(() => editCategoriesModal.classList.add('modal-anim'), 10);
+    }
+    
+    function closeEditCategoriesModal() {
+      editCategoriesModal.classList.remove('modal-anim');
+      setTimeout(() => editCategoriesModalBg.classList.add('hidden'), 200);
+    }
+    
+    editCategoriesModalClose.onclick = closeEditCategoriesModal;
+    editCategoriesModalBg.onclick = (e) => { if (e.target === editCategoriesModalBg) closeEditCategoriesModal(); };
+    
+    // Handle category selection from dropdown
+    editCategoriesDropdown.onchange = () => {
+      const selectedId = editCategoriesDropdown.value;
+      if (selectedId) {
+        const selectedCategory = allCategories.find(cat => cat.id === selectedId);
+        if (selectedCategory) {
+          editCategoriesName.value = selectedCategory.name;
+          editCategoriesColor.value = selectedCategory.color || '#6366f1';
+        }
+      } else {
+        editCategoriesName.value = '';
+        editCategoriesColor.value = '#6366f1';
+      }
+    };
+    // Add Category button
+    addCategoryBtn.onclick = () => {
+      openCategoryModal();
+    };
+    
+    // Edit Categories button
+    editCategoriesBtn.onclick = () => {
+      openEditCategoriesModal();
+    };
+    // Modal form submit (Add/Edit Category)
+    categoryModalForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = categoryModalInput.value.trim();
+      const color = categoryModalColor.value;
+      if (!name) {
+        categoryModalError.textContent = 'Category name required.';
+        return;
+      }
+      const btn = categoryModalForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>';
+      // Optimistic add/edit
+      const prevCats = allCategories.slice();
+      const order = allCategories.length;
+      const tempId = 'temp-' + Date.now();
+      if (categoryModalForm.dataset.editing) {
+        // Edit category
+        const catId = categoryModalForm.dataset.editing;
+        const idx = allCategories.findIndex(c => c.id === catId);
+        const oldCat = { ...allCategories[idx] };
+        allCategories[idx] = { ...allCategories[idx], name, color };
+        renderAdminCategories(allCategories, allLinks);
+        await optimisticUpdate(
+          () => updateDoc(doc(db, 'categories', catId), { name, color }),
+          () => {
+            allCategories[idx] = oldCat;
+            renderAdminCategories(allCategories, allLinks);
+          },
+          'Category updated!'
+        );
+      } else {
+        // Add category
+        allCategories.push({ id: tempId, name, order, hidden: false, color });
+        renderAdminCategories(allCategories, allLinks);
+        await optimisticUpdate(
+          () => addDoc(collection(db, 'categories'), { name, order, hidden: false, color }),
+          () => {
+            allCategories = prevCats;
+            renderAdminCategories(allCategories, allLinks);
+          },
+          'Category added!'
+        );
+      }
+      closeCategoryModal();
+    };
+    
+    // Edit Categories Modal form submit (Update Category)
+    editCategoriesModalForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const categoryId = editCategoriesDropdown.value;
+      const name = editCategoriesName.value.trim();
+      const color = editCategoriesColor.value;
+      
+      if (!categoryId) {
+        editCategoriesModalError.textContent = 'Please select a category to edit.';
+        return;
+      }
+      
+      if (!name) {
+        editCategoriesModalError.textContent = 'Category name required.';
+        return;
+      }
+      
+      const btn = editCategoriesModalForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>';
+      
+      // Optimistic update
+      const prevCats = allCategories.slice();
+      const idx = allCategories.findIndex(c => c.id === categoryId);
+      const oldCat = { ...allCategories[idx] };
+      allCategories[idx] = { ...allCategories[idx], name, color };
+      renderAdminCategories(allCategories, allLinks);
+      
+      await optimisticUpdate(
+        () => updateDoc(doc(db, 'categories', categoryId), { name, color }),
+        () => {
+          allCategories[idx] = oldCat;
+          renderAdminCategories(allCategories, allLinks);
+        },
+        'Category updated!'
+      );
+      
+      closeEditCategoriesModal();
+    };
+    
+    // Delete category button
+    deleteCategoryBtn.onclick = async () => {
+      const categoryId = editCategoriesDropdown.value;
+      if (!categoryId) {
+        editCategoriesModalError.textContent = 'Please select a category to delete.';
+        return;
+      }
+      
+      if (!confirm('Delete this category and all its links?')) return;
+      
+      const btn = deleteCategoryBtn;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>';
+      
+      try {
+        // Delete all links in this category
+        const linksToDelete = allLinks.filter(link => link.categoryId === categoryId);
+        for (const link of linksToDelete) {
+          await deleteDoc(doc(db, 'links', link.id));
+        }
+        await deleteDoc(doc(db, 'categories', categoryId));
+        showToast('Category deleted!');
+        closeEditCategoriesModal();
+        loadCategoriesAndLinks();
+      } catch (err) {
+        showToast('Failed to delete category. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Delete';
+      }
+    };
+    
+    // --- Add Link Modal logic ---
+    function openModal({ title, categoryId = '', name = '', url = '', desc = '' } = {}) {
+      modalTitle.textContent = title;
+      modalCategory.innerHTML = allCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+      modalCategory.value = categoryId || (allCategories[0] ? allCategories[0].id : '');
+      modalName.value = name;
+      modalUrl.value = url;
+      modalDesc.value = desc || '';
+      modalError.textContent = '';
+      modalBg.classList.remove('hidden');
+      setTimeout(() => modal.classList.add('modal-anim'), 10);
+      modalForm.querySelector('button[type="submit"]').disabled = false;
+      modalForm.querySelector('button[type="submit"]').innerHTML = 'Save';
+    }
+    function closeModal() {
+      modal.classList.remove('modal-anim');
+      setTimeout(() => modalBg.classList.add('hidden'), 200);
+      editing = null;
+    }
+    modalClose.onclick = closeModal;
+    modalBg.onclick = (e) => { if (e.target === modalBg) closeModal(); };
+    // Add Link button
+    addLinkBtn.onclick = () => {
+      editing = null;
+      openModal({ title: 'Add Link' });
+    };
+    // Modal form submit (Add/Edit Link)
+    modalForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const categoryId = modalCategory.value;
+      const name = modalName.value.trim();
+      const url = modalUrl.value.trim();
+      const desc = modalDesc.value.trim();
+      if (!categoryId || !name || !url) {
+        modalError.textContent = 'All fields required.';
+        return;
+      }
+      const btn = modalForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>';
+      // Optimistic add/edit
+      const prevLinks = allLinks.slice();
+      if (editing) {
+        // Edit link
+        const linkId = editing.linkId;
+        const idx = allLinks.findIndex(l => l.id === linkId);
+        const oldLink = { ...allLinks[idx] };
+        allLinks[idx] = { ...allLinks[idx], name, url, categoryId, desc };
+        renderAdminCategories(allCategories, allLinks);
+        await optimisticUpdate(
+          () => updateDoc(doc(db, 'links', linkId), { name, url, categoryId, desc }),
+          () => {
+            allLinks[idx] = oldLink;
+            renderAdminCategories(allCategories, allLinks);
+          },
+          'Link updated!'
+        );
+      } else {
+        // Add link
+        const order = allLinks.filter(l => l.categoryId === categoryId).length;
+        const tempId = 'temp-' + Date.now();
+        allLinks.push({ id: tempId, name, url, categoryId, order, hidden: false, desc });
+        renderAdminCategories(allCategories, allLinks);
+        await optimisticUpdate(
+          () => addDoc(collection(db, 'links'), { name, url, categoryId, order, hidden: false, desc }),
+          () => {
+            allLinks = prevLinks;
+            renderAdminCategories(allCategories, allLinks);
+          },
+          'Link added!'
+        );
+      }
+      closeModal();
+    };
+    // Toast
+    function showToast(msg, type = 'success') {
+      toast.textContent = msg;
+      toast.className = `px-4 py-2 rounded shadow text-white font-bold ${type === 'error' ? 'bg-red-500' : 'bg-indigo-600'} fixed bottom-6 right-6 z-50`;
+      toast.style.display = '';
+      setTimeout(() => { toast.style.display = 'none'; }, 2200);
+    }
+
+
+
+    // Load categories and links
+    let unsubscribeCategories = null;
+    let unsubscribeLinks = null;
+    function loadCategoriesAndLinks() {
+      adminLoading.style.display = '';
+      adminCategories.innerHTML = '';
+      // Unsubscribe previous listeners if any
+      if (unsubscribeCategories) unsubscribeCategories();
+      if (unsubscribeLinks) unsubscribeLinks();
+      // Listen to categories
+      unsubscribeCategories = onSnapshot(collection(db, "categories"), (catSnap) => {
+        let cats = [];
+        catSnap.forEach(doc => {
+          cats.push({ id: doc.id, ...doc.data() });
+        });
+        cats.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        allCategories = cats;
+        renderAdminCategories(cats, allLinks);
+        adminLoading.style.display = 'none';
+      });
+      // Listen to links
+      unsubscribeLinks = onSnapshot(collection(db, "links"), (linkSnap) => {
+        let links = [];
+        linkSnap.forEach(doc => {
+          links.push({ id: doc.id, ...doc.data() });
+        });
+        allLinks = links;
+        // Don't sort here, let renderAdminCategories handle it
+        renderAdminCategories(allCategories, links);
+      });
+    }
+
+    // Render categories as chips
+    function renderCategoriesList(categories) {
+      // This function is no longer needed as categories are managed via categoriesPanel
+    }
+
+    // --- Render admin categories/links with reorder and hide ---
+    function renderAdminCategories(categories, links) {
+      adminCategories.innerHTML = '';
+      // Filter categories: only show those with at least one matching link (or all if no search)
+      let filteredCategories = categories;
+      let filteredLinks = links;
+      if (adminSearchTerm) {
+        // Filter links by search
+        filteredLinks = links.filter(link =>
+          link.name.toLowerCase().includes(adminSearchTerm) ||
+          link.url.toLowerCase().includes(adminSearchTerm)
+        );
+        // Only show categories with at least one matching link
+        filteredCategories = categories.filter(cat =>
+          filteredLinks.some(link => link.categoryId === cat.id)
+        );
+      }
+      if (filteredCategories.length === 0) {
+        adminCategories.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12">
+            <svg width="80" height="80" fill="none" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" stroke="#6366f1" stroke-width="4" fill="#EEF2FF"/><path d="M25 50c2-4 7-8 15-8s13 4 15 8" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="36" r="3" fill="#6366f1"/><circle cx="48" cy="36" r="3" fill="#6366f1"/></svg>
+            <div class="text-gray-400 text-center mt-4">No categories found.<br/><span class='text-xs'>Try adding some links or changing your search.</span></div>
+          </div>
+        `;
+        return;
+      }
+      // Sort by order
+      const sortedCats = filteredCategories.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      sortedCats.forEach((cat, idx) => {
+        const isOpen = openCategory === idx;
+        // Only show links for this category that match the search (if searching)
+        const catLinks = filteredLinks.filter(link => link.categoryId === cat.id);
+        // Sort links by order
+        const sortedLinks = catLinks.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        const section = document.createElement('section');
+        section.className = "mb-4 shadow-sm rounded-lg overflow-hidden category-section";
+        section.style.background = cat.color || '#6366f1';
+        section.style.color = '#fff';
+        // section.style.borderLeft = `8px solid ${cat.color || '#6366f1'}`;
+        section.innerHTML = `
+          <div class="flex items-center justify-between px-5 py-3 category-header" style="background: transparent;">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+              <span class="text-base font-bold" style="color: #fff;">${cat.name}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-gray-200 hover:text-indigo-100 move-up-cat" data-idx="${idx}" title="Move Up" style="background: transparent;">&#8593;</button>
+              <button class="text-gray-200 hover:text-indigo-100 move-down-cat" data-idx="${idx}" title="Move Down" style="background: transparent;">&#8595;</button>
+              <button class="text-gray-200 hover:text-indigo-100 toggle-hide-cat" data-id="${cat.id}" title="${cat.hidden ? 'Show' : 'Hide'}" style="background: transparent;">
+                ${cat.hidden
+                  ? `<svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-9-7s4-7 9-7c1.657 0 3.21.41 4.525 1.125M19.07 19.07l-14.14-14.14M15 12a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`
+                  : `<svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z' /><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' /></svg>`}
+              </button>
+              <button class="focus:outline-none group" aria-expanded="${isOpen}" tabindex="0" style="background: transparent;">
+                <svg class="h-5 w-5 text-gray-200 group-hover:text-indigo-100 transition-transform ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="accordion-content ${isOpen ? 'open' : 'closed'} px-5 pb-3" style="background: transparent; ${isOpen ? '' : 'max-height:0;'}">
+            <ul class="divide-y divide-gray-100">
+              ${sortedLinks.length === 0 ? `<li class='flex flex-col items-center py-6'><svg width="40" height="40" fill="none" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="#fff" stroke-width="2" fill="transparent"/><path d="M13 25c1-2 4-4 7-4s6 2 7 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="18" r="1.5" fill="#fff"/><circle cx="24" cy="18" r="1.5" fill="#fff"/></svg><div class='text-gray-100 text-xs mt-2'>No links found in this category.</div></li>` : sortedLinks.map((link, li) => `
+                <li class="py-3 flex items-center justify-between transition-all duration-200 ease-in-out animate-fadein">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(link.url)}" alt="favicon" class="w-5 h-5 mr-1 rounded" onerror="this.style.display='none'" />
+                    <div class="flex flex-col min-w-0">
+                      <span class="font-medium" style="color: #fff;">${link.name}</span>
+                      ${link.desc ? `<div class='text-xs mt-1'>${link.desc.split(',').map(tag => `<span class='inline-block bg-transparent text-white rounded px-2 py-0.5 mr-1 mb-1' style='background: transparent;'>${tag.trim()}</span>`).join('')}</div>` : ''}
+                      <a href="${link.url}" target="_blank" class="text-sm underline truncate max-w-xs" style="display:inline-block; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color: #fff; text-decoration: underline;">${link.url}</a>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 items-center ml-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-transparent text-white" title="Likes" style="background: transparent;">❤ ${typeof link.likes === 'number' ? link.likes : 0}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-transparent text-white" title="Clicks" style="background: transparent;"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 inline mr-1' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15.5 15.5L19 19M5 11a7 7 0 1014 0 7 7 0 01-14 0z' /></svg> ${typeof link.clicks === 'number' ? link.clicks : 0}</span>
+                    <button class="ml-2 text-gray-200 hover:text-indigo-100 move-up-link" data-cat="${cat.id}" data-idx="${li}" title="Move Up" style="background: transparent;">&#8593;</button>
+                    <button class="ml-1 text-gray-200 hover:text-indigo-100 move-down-link" data-cat="${cat.id}" data-idx="${li}" title="Move Down" style="background: transparent;">&#8595;</button>
+                    <button class="ml-2 text-gray-200 hover:text-indigo-100 toggle-hide-link" data-id="${link.id}" data-idx="${li}" title="${link.hidden ? 'Show' : 'Hide'}" style="background: transparent;">
+                      ${link.hidden
+                        ? `<svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-9-7s4-7 9-7c1.657 0 3.21.41 4.525 1.125M19.07 19.07l-14.14-14.14M15 12a3 3 0 11-6 0 3 3 0 016 0z' /></svg>`
+                        : `<svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z' /><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' /></svg>`}
+                    </button>
+                    <button class="px-2 py-1 rounded-lg bg-transparent text-white text-xs font-bold hover:bg-white/10 edit-link" data-id="${link.id}" data-cat="${cat.id}" tabindex="0" style="background: transparent;">Edit</button>
+                    <button class="px-2 py-1 rounded-lg bg-transparent text-white text-xs font-bold hover:bg-white/10 delete-link" data-id="${link.id}" data-cat="${cat.id}" style="background: transparent;">Delete</button>
+                  </div>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+        // Accordion toggle
+        section.querySelector('button[aria-expanded]') && (section.querySelector('button[aria-expanded]').onclick = () => {
+          openCategory = openCategory === idx ? null : idx;
+          renderAdminCategories(sortedCats, links);
+        });
+        // Move up/down category
+        section.querySelector('.move-up-cat').onclick = async () => {
+          if (idx === 0) return;
+          const newOrder = moveItem(sortedCats, idx, idx - 1);
+          // Optimistic reorder
+          const prevCats = sortedCats.slice();
+          allCategories = newOrder;
+          renderAdminCategories(allCategories, allLinks);
+          await optimisticUpdate(
+            () => updateCategoryOrder(newOrder),
+            () => {
+              allCategories = prevCats;
+              renderAdminCategories(allCategories, allLinks);
+            },
+            'Category order updated!'
+          );
+        };
+        section.querySelector('.move-down-cat').onclick = async () => {
+          if (idx === sortedCats.length - 1) return;
+          const newOrder = moveItem(sortedCats, idx, idx + 1);
+          // Optimistic reorder
+          const prevCats = sortedCats.slice();
+          allCategories = newOrder;
+          renderAdminCategories(allCategories, allLinks);
+          await optimisticUpdate(
+            () => updateCategoryOrder(newOrder),
+            () => {
+              allCategories = prevCats;
+              renderAdminCategories(allCategories, allLinks);
+            },
+            'Category order updated!'
+          );
+        };
+        // Hide/show category
+        section.querySelector('.toggle-hide-cat').onclick = async () => {
+          const prev = cat.hidden;
+          cat.hidden = !cat.hidden;
+          renderAdminCategories(allCategories, allLinks);
+          await optimisticUpdate(
+            () => updateDoc(doc(db, 'categories', cat.id), { hidden: cat.hidden }),
+            () => {
+              cat.hidden = prev;
+              renderAdminCategories(allCategories, allLinks);
+            },
+            cat.hidden ? 'Category hidden!' : 'Category shown!'
+          );
+        };
+        // Move up/down link
+        sortedLinks.forEach((link, li) => {
+          const upBtn = section.querySelector(`.move-up-link[data-cat="${cat.id}"][data-idx="${li}"]`);
+          const downBtn = section.querySelector(`.move-down-link[data-cat="${cat.id}"][data-idx="${li}"]`);
+          upBtn && (upBtn.onclick = async () => {
+            if (li === 0) return;
+            const newOrder = moveItem(sortedLinks, li, li - 1);
+            // Optimistic reorder
+            const prevLinks = sortedLinks.slice();
+            allLinks = allLinks.filter(l => l.categoryId !== cat.id).concat(newOrder);
+            renderAdminCategories(allCategories, allLinks);
+            await optimisticUpdate(
+              () => updateLinkOrder(cat.id, newOrder),
+              () => {
+                allLinks = allLinks.filter(l => l.categoryId !== cat.id).concat(prevLinks);
+                renderAdminCategories(allCategories, allLinks);
+              },
+              'Link order updated!'
+            );
+          });
+          downBtn && (downBtn.onclick = async () => {
+            if (li === sortedLinks.length - 1) return;
+            const newOrder = moveItem(sortedLinks, li, li + 1);
+            // Optimistic reorder
+            const prevLinks = sortedLinks.slice();
+            allLinks = allLinks.filter(l => l.categoryId !== cat.id).concat(newOrder);
+            renderAdminCategories(allCategories, allLinks);
+            await optimisticUpdate(
+              () => updateLinkOrder(cat.id, newOrder),
+              () => {
+                allLinks = allLinks.filter(l => l.categoryId !== cat.id).concat(prevLinks);
+                renderAdminCategories(allCategories, allLinks);
+              },
+              'Link order updated!'
+            );
+          });
+        });
+        // Hide/show link
+        section.querySelectorAll('.toggle-hide-link').forEach(btn => {
+          btn.onclick = async () => {
+            const link = sortedLinks[parseInt(btn.dataset.idx)];
+            const prev = link.hidden;
+            link.hidden = !link.hidden;
+            renderAdminCategories(allCategories, allLinks);
+            await optimisticUpdate(
+              () => updateDoc(doc(db, 'links', btn.dataset.id), { hidden: link.hidden }),
+              () => {
+                link.hidden = prev;
+                renderAdminCategories(allCategories, allLinks);
+              },
+              link.hidden ? 'Link hidden!' : 'Link shown!'
+            );
+          };
+        });
+        // Edit link
+        section.querySelectorAll('.edit-link').forEach(btn => {
+          btn.onclick = () => {
+            editing = { linkId: btn.dataset.id };
+            const link = sortedLinks.find(l => l.id === btn.dataset.id);
+            openModal({ title: 'Edit Link', categoryId: btn.dataset.cat, name: link.name, url: link.url, desc: link.desc });
+          };
+        });
+        // Delete link
+        section.querySelectorAll('.delete-link').forEach(btn => {
+          btn.onclick = async () => {
+            if (!confirm('Delete this link?')) return;
+            const prevLinks = allLinks.slice();
+            allLinks = allLinks.filter(l => l.id !== btn.dataset.id);
+            renderAdminCategories(allCategories, allLinks);
+            await optimisticUpdate(
+              () => deleteDoc(doc(db, 'links', btn.dataset.id)),
+              () => {
+                allLinks = prevLinks;
+                renderAdminCategories(allCategories, allLinks);
+              },
+              'Link deleted!'
+            );
+          };
+        });
+        adminCategories.appendChild(section);
+      });
+    }
+
+  </script>
+</body>
+</html> 
