@@ -411,8 +411,8 @@
       background: rgba(255, 255, 255, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -420,7 +420,7 @@
       opacity: 0;
       transition: all 0.3s ease;
       color: rgba(255, 255, 255, 0.8);
-      font-size: 20px;
+      font-size: 16px;
       backdrop-filter: var(--blur-soft);
       z-index: 5;
       font-family: 'Inter', sans-serif;
@@ -428,10 +428,10 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 0;
       line-height: 1;
-      min-width: 40px;
-      min-height: 40px;
-      max-width: 40px;
-      max-height: 40px;
+      min-width: 36px;
+      min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
     }
 
     .msg-row.Lilo .reply-button {
@@ -535,6 +535,252 @@
     .msg.Zizi:hover {
       background: var(--bg-glass-strong);
       box-shadow: var(--shadow-medium);
+    }
+
+    /* Reaction Styles */
+    .reactions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .reaction {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: var(--blur-soft);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reaction::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .reaction:hover::before {
+      left: 100%;
+    }
+
+    .reaction:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .reaction.own-reaction {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      box-shadow: 0 2px 12px var(--primary-glow);
+    }
+
+    .reaction.own-reaction:hover {
+      background: var(--primary-glow);
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .reaction-count {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    .reaction-emoji {
+      font-size: 1.1rem;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    .react-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s ease;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+      backdrop-filter: var(--blur-soft);
+      z-index: 5;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 0;
+      line-height: 1;
+      min-width: 36px;
+      min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+    }
+
+    .msg-row.Lilo .react-button {
+      right: calc(100% + 52px);
+    }
+
+    .msg-row.Zizi .react-button {
+      left: calc(100% + 52px);
+    }
+
+    .msg-row:hover .react-button {
+      opacity: 1;
+    }
+
+    @media (max-width: 767px) {
+      .react-button {
+        opacity: 1;
+        right: calc(100% + 8px) !important;
+        left: calc(100% + 8px) !important;
+      }
+      
+      .msg-row.Lilo .react-button {
+        right: calc(100% + 8px) !important;
+      }
+      
+      .msg-row.Zizi .react-button {
+        left: calc(100% + 8px) !important;
+      }
+    }
+
+    .react-button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.95);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Emoji Picker Styles */
+    .emoji-picker {
+      position: fixed;
+      background: var(--bg-glass-strong);
+      backdrop-filter: var(--blur-medium);
+      border: 1px solid var(--border-primary);
+      border-radius: 20px;
+      padding: 20px;
+      display: none;
+      width: 280px;
+      height: 280px;
+      box-shadow: 
+        var(--shadow-medium),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .emoji-picker::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%, rgba(255, 255, 255, 0.02) 100%);
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    .emoji-picker.show {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      animation: emojiPickerSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 1 !important;
+      visibility: visible !important;
+      justify-content: center !important;
+      align-content: center !important;
+      align-items: center !important;
+      width: 280px !important;
+      height: 280px !important;
+    }
+
+    @keyframes emojiPickerSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .emoji-option {
+      width: 50px !important;
+      height: 50px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer;
+      border-radius: 50% !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1.5rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+      flex-grow: 0;
+      aspect-ratio: 1 !important;
+      min-width: 50px !important;
+      min-height: 50px !important;
+      max-width: 50px !important;
+      max-height: 50px !important;
+    }
+
+    .emoji-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .emoji-option:hover::before {
+      left: 100%;
+    }
+
+    .emoji-option:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .emoji-option:active {
+      transform: translateY(-1px) scale(0.95);
+      transition: all 0.1s ease;
     }
 
     .msg:hover {
@@ -807,7 +1053,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, enableNetwork, disableNetwork, limit, startAfter, getDocs } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, enableNetwork, disableNetwork, limit, startAfter, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1160,6 +1406,82 @@
         padding: 6px 10px;
         font-size: 0.7rem;
       }
+      
+      .reactions-container {
+        margin-top: 8px;
+        gap: 4px;
+        padding: 2px 0;
+      }
+      
+      .reaction {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        border-radius: 14px;
+      }
+      
+      .reaction-emoji {
+        font-size: 1rem;
+      }
+      
+      .reaction-count {
+        font-size: 0.7rem;
+        min-width: 14px;
+      }
+      
+      .emoji-picker {
+        width: 240px !important;
+        height: 240px !important;
+        padding: 16px;
+        border-radius: 16px;
+      }
+      
+      .emoji-picker.show {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        justify-content: center !important;
+        align-content: center !important;
+        align-items: center !important;
+        width: 240px !important;
+        height: 240px !important;
+      }
+      
+      .emoji-option {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.3rem;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0;
+        flex-grow: 0;
+        aspect-ratio: 1 !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        max-width: 40px !important;
+        max-height: 40px !important;
+      }
+      
+      .react-button {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+      }
+      
+      .reply-button {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+      }
     }
     
     @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -1510,6 +1832,51 @@
       setReplyTo(data, messageId);
     };
     textEl.appendChild(replyButton);
+
+    // Add reaction button
+    const reactButton = document.createElement("button");
+    reactButton.className = "react-button";
+    reactButton.innerHTML = "😊";
+    reactButton.title = "React to this message";
+    reactButton.onclick = (e) => {
+      e.stopPropagation();
+      showEmojiPicker(reactButton, messageId);
+    };
+    textEl.appendChild(reactButton);
+
+    // Add reactions container
+    if (data.reactions && Object.keys(data.reactions).length > 0) {
+      const reactionsContainer = document.createElement("div");
+      reactionsContainer.className = "reactions-container";
+      
+      Object.entries(data.reactions).forEach(([emoji, users]) => {
+        const reaction = document.createElement("div");
+        reaction.className = "reaction";
+        if (users.includes(username)) {
+          reaction.classList.add("own-reaction");
+        }
+        
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "reaction-emoji";
+        emojiSpan.textContent = emoji;
+        
+        const countSpan = document.createElement("span");
+        countSpan.className = "reaction-count";
+        countSpan.textContent = users.length;
+        
+        reaction.appendChild(emojiSpan);
+        reaction.appendChild(countSpan);
+        
+        reaction.onclick = (e) => {
+          e.stopPropagation();
+          toggleReaction(messageId, emoji);
+        };
+        
+        reactionsContainer.appendChild(reaction);
+      });
+      
+      msgContent.appendChild(reactionsContainer);
+    }
     
     msgEl.appendChild(textEl);
     return msgEl;
@@ -1563,6 +1930,211 @@
       indicator.appendChild(replyClose);
       
       replyContainer.appendChild(indicator);
+    }
+  }
+
+  // Reaction and Emoji Picker Functions
+  const commonEmojis = ['❤️', '👍', '👎', '😂', '😍', '😮', '😢', '😡', '🎉', '🔥', '💯', '👏', '🙏', '🤔', '😴', '🤯'];
+
+  function showEmojiPicker(button, messageId) {
+    // Remove any existing emoji picker
+    const existingPicker = document.querySelector('.emoji-picker');
+    if (existingPicker) {
+      existingPicker.remove();
+    }
+
+    const picker = document.createElement('div');
+    picker.className = 'emoji-picker';
+    picker.style.display = 'flex';
+    picker.style.flexWrap = 'wrap';
+    picker.style.gap = '12px';
+    picker.style.justifyContent = 'center';
+    picker.style.alignContent = 'center';
+    picker.style.alignItems = 'center';
+    picker.style.width = '280px';
+    picker.style.height = '280px';
+    
+    commonEmojis.forEach(emoji => {
+      const emojiBtn = document.createElement('button');
+      emojiBtn.className = 'emoji-option';
+      emojiBtn.textContent = emoji;
+      
+      // Ensure PERFECT circular shape with inline styles
+      const size = window.innerWidth <= 767 ? '40px' : '50px';
+      emojiBtn.style.width = size;
+      emojiBtn.style.height = size;
+      emojiBtn.style.borderRadius = '50%';
+      emojiBtn.style.display = 'flex';
+      emojiBtn.style.alignItems = 'center';
+      emojiBtn.style.justifyContent = 'center';
+      emojiBtn.style.flexShrink = '0';
+      emojiBtn.style.flexGrow = '0';
+      emojiBtn.style.aspectRatio = '1';
+      emojiBtn.style.minWidth = size;
+      emojiBtn.style.minHeight = size;
+      emojiBtn.style.maxWidth = size;
+      emojiBtn.style.maxHeight = size;
+      emojiBtn.style.boxSizing = 'border-box';
+      emojiBtn.style.padding = '0';
+      emojiBtn.style.margin = '0';
+      
+      emojiBtn.onclick = (e) => {
+        e.stopPropagation();
+        addReaction(messageId, emoji);
+        picker.remove();
+      };
+      picker.appendChild(emojiBtn);
+    });
+
+    // Simple positioning - center on screen for now
+    const pickerWidth = window.innerWidth <= 767 ? 240 : 280;
+    const pickerHeight = window.innerWidth <= 767 ? 240 : 280;
+    
+    const left = Math.max(10, (window.innerWidth - pickerWidth) / 2);
+    const top = Math.max(10, (window.innerHeight - pickerHeight) / 2);
+    
+    picker.style.left = left + 'px';
+    picker.style.top = top + 'px';
+    
+    // Mobile adjustments
+    if (window.innerWidth <= 767) {
+      picker.style.width = '240px';
+      picker.style.height = '240px';
+      picker.style.gap = '8px';
+    }
+
+    document.body.appendChild(picker);
+    
+    // Show the picker with animation
+    console.log('Emoji picker created, adding show class...');
+    setTimeout(() => {
+      picker.classList.add('show');
+      console.log('Show class added, picker should be visible now');
+    }, 10);
+
+    // Close picker when clicking outside
+    const closePicker = (e) => {
+      if (!picker.contains(e.target) && !button.contains(e.target)) {
+        picker.remove();
+        document.removeEventListener('click', closePicker);
+      }
+    };
+    
+    setTimeout(() => {
+      document.addEventListener('click', closePicker);
+    }, 100);
+  }
+
+  async function addReaction(messageId, emoji) {
+    if (!currentUser) return;
+
+    try {
+      const messageRef = doc(db, "messages", messageId);
+      const messageDoc = await getDoc(messageRef);
+      
+      if (!messageDoc.exists()) return;
+      
+      const messageData = messageDoc.data();
+      const reactions = messageData.reactions || {};
+      
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      
+      // Add user to reaction if not already there
+      if (!reactions[emoji].includes(username)) {
+        reactions[emoji].push(username);
+        
+        await updateDoc(messageRef, {
+          reactions: reactions
+        });
+        
+        // Show visual feedback
+        showReactionFeedback(messageId, emoji);
+      }
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
+  }
+
+  function showReactionFeedback(messageId, emoji) {
+    const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageEl) return;
+    
+    const feedback = document.createElement('div');
+    feedback.textContent = emoji;
+    feedback.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 1000;
+      animation: reactionFeedback 1s ease-out forwards;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes reactionFeedback {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1) translateY(-20px);
+        }
+      }
+    `;
+    
+    document.head.appendChild(style);
+    messageEl.appendChild(feedback);
+    
+    setTimeout(() => {
+      feedback.remove();
+      style.remove();
+    }, 1000);
+  }
+
+  async function toggleReaction(messageId, emoji) {
+    if (!currentUser) return;
+
+    try {
+      const messageRef = doc(db, "messages", messageId);
+      const messageDoc = await getDoc(messageRef);
+      
+      if (!messageDoc.exists()) return;
+      
+      const messageData = messageDoc.data();
+      const reactions = messageData.reactions || {};
+      
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      
+      const userIndex = reactions[emoji].indexOf(username);
+      
+      if (userIndex > -1) {
+        // Remove user from reaction
+        reactions[emoji].splice(userIndex, 1);
+        if (reactions[emoji].length === 0) {
+          delete reactions[emoji];
+        }
+      } else {
+        // Add user to reaction
+        reactions[emoji].push(username);
+      }
+      
+      await updateDoc(messageRef, {
+        reactions: reactions
+      });
+    } catch (error) {
+      console.error('Error toggling reaction:', error);
     }
   }
 
@@ -1659,6 +2231,14 @@
     if (e.key === 'Escape' && replyingTo) {
       clearReply();
       e.preventDefault();
+    }
+    
+    // Close emoji picker with Escape
+    if (e.key === 'Escape') {
+      const emojiPicker = document.querySelector('.emoji-picker');
+      if (emojiPicker) {
+        emojiPicker.remove();
+      }
     }
   });
   
