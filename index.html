@@ -3,44 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>zizi Birthday Surprise</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<title>🎉 Zizi Birthday Surprise 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* Reset & base */
-  body, html { margin:0; padding:0; height:100%; overflow:hidden; font-family: 'Poppins', sans-serif; }
-  body { display:flex; justify-content:center; align-items:center; background: linear-gradient(135deg,#ff6a00,#ee0979); color:white; flex-direction:column; text-align:center; transition: background 1s; padding:20px; }
+  /* Reset & Base */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body, html { height:100%; width:100%; font-family: 'Montserrat', sans-serif; overflow:hidden; }
 
-  #countdown { font-size: 3rem; margin-bottom:30px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+  body { 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    background: radial-gradient(circle at top, #ff9a9e, #fad0c4); 
+    flex-direction:column; 
+    text-align:center; 
+    transition: background 1s; 
+  }
 
-  #surprise { display:none; flex-direction:column; align-items:center; max-width:700px; background: rgba(255,255,255,0.05); padding:30px; border-radius:20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-  
+  #countdown { 
+    font-size: 3rem; 
+    font-weight:700; 
+    color:#fff; 
+    text-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    margin-bottom:40px; 
+  }
+
+  #surprise { 
+    display:none; 
+    flex-direction:column; 
+    align-items:center; 
+    background: rgba(255,255,255,0.1); 
+    padding:40px 30px; 
+    border-radius:25px; 
+    backdrop-filter: blur(10px); 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
+    max-width:700px;
+    animation: fadeIn 1s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform: scale(0.9); }
+    to { opacity:1; transform: scale(1); }
+  }
+
   #message { 
-    font-size:1.8rem; 
-    margin-bottom:25px; 
-    line-height:1.7; 
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.4); 
-    white-space: pre-line;
-    transition: transform 0.3s ease;
+    font-size:1.7rem; 
+    margin-bottom:30px; 
+    line-height:1.6; 
+    color:#fff;
+    transition: transform 0.3s ease, color 0.3s ease; 
   }
 
   button { 
-    background:white; color:#ff3c7e; border:none; font-size:1.3rem; padding:12px 28px; border-radius:12px; cursor:pointer; 
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
-    box-shadow:0 5px 15px rgba(0,0,0,0.3);
-    font-weight:600;
+    background: #fff; 
+    color: #ff6b81; 
+    border:none; 
+    font-size:1.3rem; 
+    padding:15px 35px; 
+    border-radius:15px; 
+    cursor:pointer; 
+    font-weight:700;
+    transition: all 0.2s ease; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
   }
-  button:hover { transform: scale(1.05); box-shadow:0 8px 25px rgba(0,0,0,0.4); background:#ff3c7e; color:white; }
 
-  .confetti { position:fixed; font-size:24px; top:-10px; animation:fall 3s linear infinite; }
-  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity:0; } }
+  button:hover { 
+    transform: scale(1.1); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+    background: #ff6b81; 
+    color: #fff; 
+  }
+
+  /* Confetti */
+  .confetti { 
+    position:fixed; 
+    font-size:24px; 
+    top:-10px; 
+    animation:fall linear infinite; 
+  }
+
+  @keyframes fall { 
+    to { transform: translateY(110vh) rotate(360deg); opacity:0; } 
+  }
+
+  /* Countdown Boxes */
+  .time-box { 
+    display:inline-block; 
+    background: rgba(255,255,255,0.2); 
+    padding:20px 25px; 
+    border-radius:15px; 
+    margin:0 10px; 
+    font-weight:700;
+    font-size:2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .time-label { font-size:0.8rem; display:block; margin-top:5px; color:#fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);}
 </style>
 </head>
 <body>
 
-<div id="countdown">Loading countdown...</div>
+<div id="countdown">
+  <span class="time-box" id="days">0<span class="time-label">Days</span></span>
+  <span class="time-box" id="hours">0<span class="time-label">Hours</span></span>
+  <span class="time-box" id="minutes">0<span class="time-label">Minutes</span></span>
+  <span class="time-box" id="seconds">0<span class="time-label">Seconds</span></span>
+</div>
 
 <div id="surprise">
-  <h1 id="message">اوهو! قد انت بنت 20</h1>
+  <h1 id="message">Hey Zizi! 🎉</h1>
   <button id="nextBtn">Next →</button>
 </div>
 
@@ -50,48 +121,47 @@
 
 <script>
 const targetDate = new Date("2025-09-27T19:49:00").getTime();
-const countdownEl = document.getElementById("countdown");
+const countdownEl = {
+  days: document.getElementById('days'),
+  hours: document.getElementById('hours'),
+  minutes: document.getElementById('minutes'),
+  seconds: document.getElementById('seconds')
+};
 const surpriseEl = document.getElementById("surprise");
 
 const timer = setInterval(() => {
   const now = new Date().getTime();
   const distance = targetDate - now;
-  if (distance <= 0) {
+
+  if(distance <= 0){
     clearInterval(timer);
-    countdownEl.style.display = "none";
-    surpriseEl.style.display = "flex";
+    document.getElementById('countdown').style.display='none';
+    surpriseEl.style.display='flex';
   } else {
-    const days = Math.floor(distance / (1000*60*60*24));
-    const hours = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
-    const minutes = Math.floor((distance % (1000*60*60))/(1000*60));
-    const seconds = Math.floor((distance % (1000*60))/1000);
-    countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    countdownEl.days.firstChild.textContent = Math.floor(distance / (1000*60*60*24));
+    countdownEl.hours.firstChild.textContent = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
+    countdownEl.minutes.firstChild.textContent = Math.floor((distance % (1000*60*60))/(1000*60));
+    countdownEl.seconds.firstChild.textContent = Math.floor((distance % (1000*60))/1000);
   }
 }, 1000);
 
 const messages = [
-  "😲 اوهو! قد انت بنت 20",
-  "💖هههه اتمنى لك عمراُ طويلاً يا عزيزني,...... ساع جده ههههههه",
-  "🙏 شكراً لتواجدك في حياتي في الفترة الاخيره, لقد كانت فقره مميزه فعلاً من حياتي",
-  "🎉 عيد ميلاد 20 سعيد زيزي! 🎂🎈🎊"
+  "🎈 اوهو! قد انت بنت 20",
+  "💖 كل عام وأنتِ بألف خير يا زيزي!",
+  "🎂 أتمنى لك السعادة والنجاح في كل خطوة.",
+  "✨ استمتعي بعيد ميلادك مع كل الحب والفرح!"
 ];
 
 const backgrounds = [
-  "linear-gradient(135deg,#ff80ab,#7c4dff)",
-  "linear-gradient(135deg,#ffca28,#ef5350)",
-  "linear-gradient(135deg,#4db6ac,#42a5f5)",
-  "linear-gradient(135deg,#8bc34a,#00bcd4)"
+  "radial-gradient(circle at top,#ff9a9e,#fad0c4)",
+  "radial-gradient(circle at top,#a18cd1,#fbc2eb)",
+  "radial-gradient(circle at top,#84fab0,#8fd3f4)",
+  "radial-gradient(circle at top,#ffecd2,#fcb69f)"
 ];
 
-const finalMessage = `عيد ميلاد سعيد يا زيزي الغالية! 🎉💖
-
-في هذا اليوم المميز، أريد أن أذكركِ كم أنتِ مميزة بالنسبة لي ولكل من حولك. زيزي، أنتِ أكثر من صديقة، أنتِ روح مرحة تملأ المكان ضحكًا وفرحًا، وقلبك الكبير يجعل كل من يعرفك يشعر بالراحة والأمان.
-
-أتمنى لكِ في عامك الجديد السعادة التي لا تنتهي، والأمل الذي يرافقك في كل خطوة، والنجاح في كل ما تسعين إليه. أتمنى أن تتحقق كل أحلامك، وأن تكون أيامك مليئة بالحب واللحظات الجميلة التي تبقى محفورة في الذاكرة.
-
-أتمنى لكِ الصحة والفرح والطمأنينة، وأن يبتسم لكِ العالم كما تبتسمين له دائمًا. لا تنسي أبدًا كم أنتِ رائعة، وكم أنتِ مصدر إلهام وسعادة لمن حولك. 🌸✨
-
-كل عام وأنتِ بألف خير يا أحلى زيزي، وليكن هذا العام أفضل أعوامك مليئًا بالمفاجآت السعيدة والحب الذي لا ينتهي. 💝🎂`;
+const finalMessage = `🎉 عيد ميلاد سعيد يا زيزي الغالية! 🎂💖
+أتمنى لكِ عامًا مليئًا بالحب، السعادة، والنجاح في كل خطواتك.
+استمتعي بيومك المميز وابتسمي دائمًا! 🌸`;
 
 let index = 0;
 const msgEl = document.getElementById("message");
@@ -109,13 +179,13 @@ btn.addEventListener("click", () => {
   } else {
     btn.style.display="none";
     msgEl.textContent = finalMessage;
-    document.body.style.background = "linear-gradient(135deg,#f06292,#ba68c8)";
-    launchFireworks();
+    document.body.style.background = "radial-gradient(circle at top,#f6d365,#fda085)";
+    launchConfetti();
     bgMusic.play();
   }
 });
 
-function launchFireworks(){
+function launchConfetti(){
   for(let i=0;i<150;i++){
     const confetti = document.createElement("div");
     confetti.classList.add("confetti");
