@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎉 Zizi Birthday Surprise 🎂</title>
+<title>zizi</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <style>
   /* Reset & Base */
@@ -111,7 +111,7 @@
 </div>
 
 <div id="surprise">
-  <h1 id="message"> اليوم يوم مميز 🎉</h1>
+  <h1 id="message"></h1>
   <button id="nextBtn">Next →</button>
 </div>
 
@@ -120,7 +120,7 @@
 </audio>
 
 <script>
-const targetDate = new Date("2025-10-14T00:00:00").getTime();
+const targetDate = new Date("2025-09-14T00:00:00").getTime();
 const countdownEl = {
   days: document.getElementById('days'),
   hours: document.getElementById('hours'),
@@ -145,13 +145,6 @@ const timer = setInterval(() => {
   }
 }, 1000);
 
-const messages = [,
-  "🎈 اوهو! قد انت بنت 20",
-  "💖 كل عام وأنتِ بألف خير يا زيزي",
-  "🎂 أتمنى لك السعادة والنجاح في كل خطوة",
-  "✨ واتمنى لك عمرا طويلاً مديداً.... ساع جده هههههه"
-];
-
 const backgrounds = [
   "radial-gradient(circle at top,#ff9a9e,#fad0c4)",
   "radial-gradient(circle at top,#a18cd1,#fbc2eb)",
@@ -159,17 +152,7 @@ const backgrounds = [
   "radial-gradient(circle at top,#ffecd2,#fcb69f)"
 ];
 
-const finalMessage = `اليوم ليس يومًا عاديًا… اليوم هو يومكِ أنتِ.
-أتمنى أن لا يمرّ هذا اليوم خاملًا أو عابرًا، بل أن يكون يومًا للحياة والفرح، يومًا يليق بروحكِ التي تستحق الاحتفاء.
-
-اليوم هو يوم ميلاد فتاة ليست كسائر الفتيات…
-فتاة استثنائية بكل تفاصيلها، فكل ما فيها يُحب ويُحترم ويُدهش.
-
-شكرًا لكِ على كل شيء… ربما لا تدركين ذلك، لكنكِ غيّرتِ في حياتي ما لم أظن يومًا أنه سيتغيّر. علمتِني الكثير دون أن تدري، وتركتِ أثرًا لا يُمحى في داخلي.
-
-أنتِ أهم فصول حياتي، بل أجملها وأنقاها. لا تسمحي يومًا لافكارك ان تسمح لك بالتقليل من قيمتكِ عندي. أنتِ اسمٌ نقيّ لا يمسّه غبار، ولا تشوبه شائبة في ذاكرتي ووجداني.
-
-ولا زلتُ — رغم كل شيء — أحبكِ في عمق روحي، حبًا لا يحتاج للكلام ولا يطلب الاعتراف. كل ما أتمناه هو أن تكوني بخير دائمًا، وأن تبقي كما أنتِ… بخير، وسعادة، وسلام.`;
+const finalMessage = ``;
 
 let index = 0;
 const msgEl = document.getElementById("message");
