@@ -8,7 +8,7 @@
 <style>
   /* Reset & Base */
   * { margin:0; padding:0; box-sizing:border-box; }
-  body, html { height:100%; width:100%; font-family: 'Montserrat', sans-serif; overflow:hidden; }
+  html,body { height:100%; width:100%; font-family:'Montserrat',sans-serif; overflow-x:hidden; }
 
   body { 
     display:flex; 
@@ -17,88 +17,110 @@
     background: radial-gradient(circle at top, #ff9a9e, #fad0c4); 
     flex-direction:column; 
     text-align:center; 
-    transition: background 1s; 
+    transition:background 1s;
+    padding:1rem;
   }
 
   #countdown { 
-    font-size: 3rem; 
+    font-size: clamp(2rem, 6vw, 3rem); 
     font-weight:700; 
     color:#fff; 
-    text-shadow: 0 3px 10px rgba(0,0,0,0.4);
-    margin-bottom:40px; 
+    text-shadow:0 3px 10px rgba(0,0,0,0.4);
+    margin-bottom:2rem;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:1rem;
+  }
+
+  .time-box { 
+    background:rgba(255,255,255,0.2); 
+    padding:1rem 1.2rem; 
+    border-radius:15px; 
+    font-weight:700;
+    font-size:clamp(1.3rem, 4vw, 2rem);
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    min-width:70px;
+  }
+
+  .time-label { 
+    font-size:0.7rem; 
+    display:block; 
+    margin-top:5px; 
+    color:#fff; 
+    text-shadow:1px 1px 2px rgba(0,0,0,0.3);
   }
 
   #surprise { 
     display:none; 
     flex-direction:column; 
     align-items:center; 
-    background: rgba(255,255,255,0.1); 
-    padding:40px 30px; 
-    border-radius:25px; 
-    backdrop-filter: blur(10px); 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
-    max-width:700px;
-    animation: fadeIn 1s ease forwards;
+    background:rgba(255,255,255,0.15); 
+    padding:1.5rem; 
+    border-radius:20px; 
+    backdrop-filter:blur(10px); 
+    box-shadow:0 15px 40px rgba(0,0,0,0.3); 
+    max-width:90%;
+    width:500px;
+    animation:fadeIn 1s ease forwards;
   }
 
   @keyframes fadeIn {
-    from { opacity:0; transform: scale(0.9); }
-    to { opacity:1; transform: scale(1); }
+    from { opacity:0; transform: scale(0.9);}
+    to { opacity:1; transform: scale(1);}
   }
 
   #message { 
-    font-size:1.7rem; 
-    margin-bottom:30px; 
+    font-size:clamp(1.1rem, 4vw, 1.7rem);
+    margin-bottom:1.5rem; 
     line-height:1.6; 
     color:#fff;
-    transition: transform 0.3s ease, color 0.3s ease; 
+    transition:transform 0.3s ease;
+    word-break:break-word;
   }
 
   button { 
-    background: #fff; 
-    color: #ff6b81; 
+    background:#fff; 
+    color:#ff6b81; 
     border:none; 
-    font-size:1.3rem; 
-    padding:15px 35px; 
+    font-size:clamp(1rem, 4vw, 1.3rem);
+    padding:0.8rem 2rem; 
     border-radius:15px; 
     cursor:pointer; 
     font-weight:700;
-    transition: all 0.2s ease; 
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    transition:all 0.2s ease; 
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+    touch-action:manipulation;
   }
 
   button:hover { 
-    transform: scale(1.1); 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
-    background: #ff6b81; 
-    color: #fff; 
+    transform:scale(1.05); 
+    box-shadow:0 10px 30px rgba(0,0,0,0.4); 
+    background:#ff6b81; 
+    color:#fff; 
   }
 
   /* Confetti */
   .confetti { 
     position:fixed; 
-    font-size:24px; 
     top:-10px; 
-    animation:fall linear infinite; 
+    animation:fall linear forwards; 
+    pointer-events:none;
+    z-index:10;
   }
 
   @keyframes fall { 
-    to { transform: translateY(110vh) rotate(360deg); opacity:0; } 
+    to { transform:translateY(110vh) rotate(360deg); opacity:0;}
   }
 
-  /* Countdown Boxes */
-  .time-box { 
-    display:inline-block; 
-    background: rgba(255,255,255,0.2); 
-    padding:20px 25px; 
-    border-radius:15px; 
-    margin:0 10px; 
-    font-weight:700;
-    font-size:2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
+  audio { display:none; }
 
-  .time-label { font-size:0.8rem; display:block; margin-top:5px; color:#fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);}
+  /* Small-screen tweaks */
+  @media (max-width:480px){
+    #surprise { padding:1rem; }
+    button { width:100%; }
+    #message { text-align:center; }
+  }
 </style>
 </head>
 <body>
@@ -111,7 +133,7 @@
 </div>
 
 <div id="surprise">
-  <h1 id="message"></h1>
+  <h1 id="message">اليوم يوم مميز 🎉</h1>
   <button id="nextBtn">Next →</button>
 </div>
 
@@ -120,7 +142,7 @@
 </audio>
 
 <script>
-const targetDate = new Date("2025-09-14T00:00:00").getTime();
+const targetDate = new Date("2025-10-14T00:00:00").getTime();
 const countdownEl = {
   days: document.getElementById('days'),
   hours: document.getElementById('hours'),
@@ -145,6 +167,13 @@ const timer = setInterval(() => {
   }
 }, 1000);
 
+const messages = [
+  "🎈 اوهو! قد انت بنت 20",
+  "💖 كل عام وأنتِ بألف خير يا زيزي",
+  "🎂 أتمنى لك السعادة والنجاح في كل خطوة",
+  "✨ واتمنى لك عمرا طويلاً مديداً.... ساع جده هههههه"
+];
+
 const backgrounds = [
   "radial-gradient(circle at top,#ff9a9e,#fad0c4)",
   "radial-gradient(circle at top,#a18cd1,#fbc2eb)",
@@ -152,7 +181,17 @@ const backgrounds = [
   "radial-gradient(circle at top,#ffecd2,#fcb69f)"
 ];
 
-const finalMessage = ``;
+const finalMessage = `اليوم ليس يومًا عاديًا… اليوم هو يومكِ أنتِ.
+أتمنى أن لا يمرّ هذا اليوم خاملًا أو عابرًا، بل أن يكون يومًا للحياة والفرح، يومًا يليق بروحكِ التي تستحق الاحتفاء.
+
+اليوم هو يوم ميلاد فتاة ليست كسائر الفتيات…
+فتاة استثنائية بكل تفاصيلها، فكل ما فيها يُحب ويُحترم ويُدهش.
+
+شكرًا لكِ على كل شيء… ربما لا تدركين ذلك، لكنكِ غيّرتِ في حياتي ما لم أظن يومًا أنه سيتغيّر. علمتِني الكثير دون أن تدري، وتركتِ أثرًا لا يُمحى في داخلي.
+
+أنتِ أهم فصول حياتي، بل أجملها وأنقاها. لا تسمحي يومًا لافكارك ان تسمح لك بالتقليل من قيمتكِ عندي. أنتِ اسمٌ نقيّ لا يمسّه غبار، ولا تشوبه شائبة في ذاكرتي ووجداني.
+
+ولا زلتُ — رغم كل شيء — أحبكِ في عمق روحي، حبًا لا يحتاج للكلام ولا يطلب الاعتراف. كل ما أتمناه هو أن تكوني بخير دائمًا، وأن تبقي كما أنتِ… بخير، وسعادة، وسلام.`;
 
 let index = 0;
 const msgEl = document.getElementById("message");
@@ -160,13 +199,13 @@ const btn = document.getElementById("nextBtn");
 const bgMusic = document.getElementById("bgMusic");
 
 btn.addEventListener("click", () => {
-  index++;
   if(index < messages.length){
     msgEl.textContent = messages[index];
     document.body.style.background = backgrounds[index];
     msgEl.style.transform = "scale(1.05)";
     setTimeout(()=> msgEl.style.transform="scale(1)",300);
     if(index === messages.length-1) btn.textContent="🎉 Celebrate!";
+    index++;
   } else {
     btn.style.display="none";
     msgEl.textContent = finalMessage;
@@ -177,17 +216,16 @@ btn.addEventListener("click", () => {
 });
 
 function launchConfetti(){
-  for(let i=0;i<150;i++){
+  for(let i=0;i<80;i++){
     const confetti = document.createElement("div");
     confetti.classList.add("confetti");
     confetti.textContent = ["🎉","🎂","🎈","✨"][Math.floor(Math.random()*4)];
     confetti.style.left = Math.random()*100+"vw";
-    confetti.style.fontSize = Math.random()*30+20+"px";
+    confetti.style.fontSize = Math.random()*24+16+"px";
     confetti.style.animationDuration = (Math.random()*3+2)+"s";
     document.body.appendChild(confetti);
   }
 }
 </script>
-
 </body>
 </html>
