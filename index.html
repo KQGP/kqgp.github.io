@@ -1,68 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>zizi</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<title>Zizi 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Amiri&display=swap" rel="stylesheet">
 <style>
-  /* Reset & Base */
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; width:100%; font-family:'Montserrat',sans-serif; overflow-x:hidden; }
-
+  html,body { height:100%; width:100%; overflow-x:hidden; font-family:'Montserrat',sans-serif; }
   body { 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    background: radial-gradient(circle at top, #ff9a9e, #fad0c4); 
-    flex-direction:column; 
-    text-align:center; 
-    transition:background 1s;
-    padding:1rem;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    background: radial-gradient(circle at top, #ff9a9e, #fad0c4);
+    text-align:center; transition:background 1s; padding:1rem;
   }
 
   #countdown { 
-    font-size: clamp(2rem, 6vw, 3rem); 
-    font-weight:700; 
-    color:#fff; 
+    font-size: clamp(2rem, 6vw, 3rem); font-weight:700; color:#fff; 
     text-shadow:0 3px 10px rgba(0,0,0,0.4);
-    margin-bottom:2rem;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:1rem;
+    margin-bottom:2rem; display:flex; flex-wrap:wrap; justify-content:center; gap:1rem;
   }
 
   .time-box { 
-    background:rgba(255,255,255,0.2); 
-    padding:1rem 1.2rem; 
-    border-radius:15px; 
-    font-weight:700;
-    font-size:clamp(1.3rem, 4vw, 2rem);
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
-    min-width:70px;
+    background:rgba(255,255,255,0.2); padding:1rem 1.2rem; border-radius:15px; 
+    font-weight:700; font-size:clamp(1.3rem, 4vw, 2rem); 
+    box-shadow:0 5px 15px rgba(0,0,0,0.2); min-width:70px;
   }
-
-  .time-label { 
-    font-size:0.7rem; 
-    display:block; 
-    margin-top:5px; 
-    color:#fff; 
-    text-shadow:1px 1px 2px rgba(0,0,0,0.3);
-  }
+  .time-label { font-size:0.7rem; display:block; margin-top:5px; color:#fff; }
 
   #surprise { 
-    display:none; 
-    flex-direction:column; 
-    align-items:center; 
-    background:rgba(255,255,255,0.15); 
-    padding:1.5rem; 
-    border-radius:20px; 
-    backdrop-filter:blur(10px); 
-    box-shadow:0 15px 40px rgba(0,0,0,0.3); 
-    max-width:90%;
-    width:500px;
-    animation:fadeIn 1s ease forwards;
+    display:none; flex-direction:column; align-items:center; 
+    background:rgba(255,255,255,0.15); padding:1.5rem; border-radius:20px; 
+    backdrop-filter:blur(10px); box-shadow:0 15px 40px rgba(0,0,0,0.3); 
+    max-width:90%; width:500px; animation:fadeIn 1s ease forwards;
   }
 
   @keyframes fadeIn {
@@ -72,54 +41,55 @@
 
   #message { 
     font-size:clamp(1.1rem, 4vw, 1.7rem);
-    margin-bottom:1.5rem; 
-    line-height:1.6; 
+    margin-bottom:1.5rem; line-height:1.6; color:#fff; 
+    transition:transform 0.3s ease; word-break:break-word;
+  }
+
+  /* 🎉 FINAL MESSAGE STYLING */
+  .final-message {
+    font-family:'Amiri', serif;
+    font-size:1.1rem;
+    text-align:justify;
+    white-space:pre-line;
+    background:rgba(255,255,255,0.2);
     color:#fff;
-    transition:transform 0.3s ease;
-    word-break:break-word;
+    padding:2rem;
+    border-radius:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.3);
+    max-height:70vh;
+    overflow-y:auto;
+    line-height:1.9;
+    text-shadow:0 2px 10px rgba(0,0,0,0.3);
+    backdrop-filter:blur(12px);
+    animation:fadeInLetter 2s ease forwards;
+  }
+
+  @keyframes fadeInLetter {
+    from {opacity:0; transform:translateY(30px);}
+    to {opacity:1; transform:translateY(0);}
   }
 
   button { 
-    background:#fff; 
-    color:#ff6b81; 
-    border:none; 
+    background:#fff; color:#ff6b81; border:none; 
     font-size:clamp(1rem, 4vw, 1.3rem);
-    padding:0.8rem 2rem; 
-    border-radius:15px; 
-    cursor:pointer; 
-    font-weight:700;
-    transition:all 0.2s ease; 
-    box-shadow:0 5px 20px rgba(0,0,0,0.3);
-    touch-action:manipulation;
+    padding:0.8rem 2rem; border-radius:15px; cursor:pointer; 
+    font-weight:700; transition:all 0.2s ease; box-shadow:0 5px 20px rgba(0,0,0,0.3);
   }
 
   button:hover { 
-    transform:scale(1.05); 
-    box-shadow:0 10px 30px rgba(0,0,0,0.4); 
-    background:#ff6b81; 
-    color:#fff; 
+    transform:scale(1.05); box-shadow:0 10px 30px rgba(0,0,0,0.4); 
+    background:#ff6b81; color:#fff; 
   }
 
-  /* Confetti */
-  .confetti { 
-    position:fixed; 
-    top:-10px; 
-    animation:fall linear forwards; 
-    pointer-events:none;
-    z-index:10;
-  }
-
-  @keyframes fall { 
-    to { transform:translateY(110vh) rotate(360deg); opacity:0;}
-  }
-
+  .confetti { position:fixed; top:-10px; animation:fall linear forwards; pointer-events:none; z-index:10; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(360deg); opacity:0;} }
   audio { display:none; }
 
-  /* Small-screen tweaks */
   @media (max-width:480px){
     #surprise { padding:1rem; }
     button { width:100%; }
     #message { text-align:center; }
+    .final-message { font-size:0.95rem; padding:1rem; }
   }
 </style>
 </head>
@@ -189,9 +159,23 @@ const finalMessage = `اليوم ليس يومًا عاديًا… اليوم ه
 
 شكرًا لكِ على كل شيء… ربما لا تدركين ذلك، لكنكِ غيّرتِ في حياتي ما لم أظن يومًا أنه سيتغيّر. علمتِني الكثير دون أن تدري، وتركتِ أثرًا لا يُمحى في داخلي.
 
-أنتِ أهم فصول حياتي، بل أجملها وأنقاها. لا تسمحي يومًا لافكارك ان تسمح لك بالتقليل من قيمتكِ عندي. أنتِ اسمٌ نقيّ لا يمسّه غبار، ولا تشوبه شائبة في ذاكرتي ووجداني.
+أنتِ أهم فصول حياتي، بل أجملها وأنقاها. لا تسمحي يومًا لأفكاركِ أن تُقنعكِ بالتقليل من قيمتكِ عندي. أنتِ اسمٌ نقيّ لا يمسّه غبار، ولا تشوبه شائبة في ذاكرتي ووجداني.
 
-ولا زلتُ — رغم كل شيء — أحبكِ في عمق روحي، حبًا لا يحتاج للكلام ولا يطلب الاعتراف. كل ما أتمناه هو أن تكوني بخير دائمًا، وأن تبقي كما أنتِ… بخير، وسعادة، وسلام.`;
+ولا زلتُ — رغم كل شيء — أحبكِ في عمق روحي، حبًا لا يحتاج للكلام ولا يطلب الاعتراف. كل ما أتمناه هو أن تكوني بخير دائمًا، وأن تبقي كما أنتِ… بخير، وسعادة، وسلام.
+
+واليوم، في عيد ميلادكِ العشرين، أحتفل بكِ كما لم أحتفل من قبل…
+عشرون عامًا من النقاء، من الجمال، من الحلم الذي صار امرأة تدهش العالم بابتسامتها.
+عشرون عامًا من الحكايات التي خُلقت لتُروى، ومن الأماني التي تستحق أن تُستجاب.
+
+كل عام وأنتِ الضوء الذي لا يخبو في أيامي، والنجمة التي تضيء دربي مهما ابتعدت.
+كل عام وأنتِ أجمل ما حدث لي، وألطف ما مرّ على قلبي.
+كل عام وروحكِ تزهر حبًا، وعقلكِ يكبر حلمًا، وقلبكِ يزداد صفاءً ونقاءً.
+
+عيد ميلادكِ العشرين ليس رقمًا يُضاف إلى عمركِ، بل هو فصل جديد من الجمال يُضاف إلى الحياة ذاتها.
+فكل ما فيكِ يزداد تألقًا، وكل عامٍ منكِ يجعل العالم أبهى.
+
+كل عام وأنتِ بخير، يا فرحة أيامي، ويا بداية كل شعور جميل.
+وليت كل الأعياد تشبهكِ، ولعل كل السنوات القادمة تكون بقدر روعتكِ التي لا توصف.`;
 
 let index = 0;
 const msgEl = document.getElementById("message");
@@ -208,7 +192,7 @@ btn.addEventListener("click", () => {
     index++;
   } else {
     btn.style.display="none";
-    msgEl.textContent = finalMessage;
+    msgEl.outerHTML = `<div class="final-message">${finalMessage}</div>`;
     document.body.style.background = "radial-gradient(circle at top,#f6d365,#fda085)";
     launchConfetti();
     bgMusic.play();
