@@ -867,7 +867,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, enableNetwork, disableNetwork, limit, startAfter, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, startAfter, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1485,7 +1485,6 @@
         showReactionFeedback(messageId, emoji);
       }
     } catch (error) {
-      console.error('Error adding reaction:', error);
     }
   }
 
@@ -1526,7 +1525,6 @@
         reactions: reactions
       });
     } catch (error) {
-      console.error('Error toggling reaction:', error);
     }
   }
   
@@ -1752,7 +1750,7 @@
   });
   
   msgInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       msgForm.dispatchEvent(new Event('submit'));
     }
