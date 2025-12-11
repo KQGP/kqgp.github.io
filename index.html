@@ -3,79 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>LiZi | Secure P2P Chat</title>
+  <title>LiZi | P2P Chat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><style>.bg{fill:%230f1117}.c1{fill:%232563eb}.c2{fill:%23ec4899}.t{font:60px sans-serif;font-weight:700;}.t1{fill:white}</style><rect class='bg' width='100' height='100' rx='20'/><text class='t t1' x='38' y='65' text-anchor='end' style='fill:%232563eb'>L</text><text class='t t1' x='62' y='65' text-anchor='start' style='fill:%23ec4899'>Z</text><circle cx='38' cy='48' r='10' style='fill:%232563eb'/><circle cx='62' cy='48' r='10' style='fill:%23ec4899'/></svg>" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* --- MODERN RESET & VARIABLES (DEFAULT: DARK MODE) --- */
     :root {
-      /* Theme & User Colors (Defaults to Lilo/Blue if no user data) */
-      --lilo-color: #2563eb; /* Blue */
-      --zizi-color: #ec4899; /* Pink */
-      --user-accent-color: var(--lilo-color); /* Default */
+      --lilo-color: #2563eb;
+      --zizi-color: #ec4899;
+      --user-accent-color: var(--lilo-color);
       
-      /* Palette - Professional Dark Mode */
       --bg-body: #0f1117;
       --bg-app: #161b22;
       --bg-header: rgba(22, 27, 34, 0.85);
       
-      /* Message Colors */
-      --msg-me-bg: var(--user-accent-color); /* Dynamic */
+      --msg-me-bg: var(--user-accent-color);
       --msg-me-text: #ffffff;
       --msg-other-bg: #2d333b; 
       --msg-other-text: #e6edf3;
       
-      /* UI Elements */
       --input-bg: #21262d;
       --border-subtle: #30363d;
-      --border-focus: var(--user-accent-color); /* Dynamic */
+      --border-focus: var(--user-accent-color);
       
-      /* Text */
       --text-primary: #f0f6fc;
       --text-secondary: #8b949e;
       --text-muted: #6e7681;
       
-      /* Shadows & Radius */
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
       --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
       --radius-bubble: 18px;
       --radius-app: 24px;
 
-      /* Button Overrides */
       --logout-text: var(--text-muted);
       --logout-bg: transparent;
       --logout-border: var(--border-subtle);
     }
     
-    /* --- ZIZI ACCENT OVERRIDE --- */
     html[data-user="Zizi"] {
-      --user-accent-color: var(--zizi-color); /* Sets Zizi's accent to Pink */
+      --user-accent-color: var(--zizi-color);
     }
     
-    /* --- BRIGHT MODE OVERRIDES --- */
     html[data-theme="bright"] {
-      /* Palette - Professional Light Mode */
       --bg-body: #f0f4f8;
       --bg-app: #ffffff;
       --bg-header: rgba(255, 255, 255, 0.95);
       
-      /* Message Colors */
-      --msg-me-bg: var(--user-accent-color); /* Dynamic */
+      --msg-me-bg: var(--user-accent-color);
       --msg-other-bg: #e5e7eb;
       --msg-other-text: #1f2937;
       
-      /* UI Elements */
       --input-bg: #f9fafb;
       --border-subtle: #d1d5db;
-      --border-focus: var(--user-accent-color); /* Dynamic */
+      --border-focus: var(--user-accent-color);
       
-      /* Text */
       --text-primary: #1f2937;
       --text-secondary: #6b7280;
       
       --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
 
-      /* Button Overrides */
       --logout-text: var(--text-primary);
       --logout-bg: var(--bg-app);
       --logout-border: var(--border-subtle);
@@ -85,7 +71,6 @@
         color: var(--text-primary);
     }
     
-    /* --- GENERAL STYLES (Apply dynamic accent color) --- */
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
     body {
@@ -100,7 +85,6 @@
       transition: background-color 0.3s;
     }
 
-    /* --- LAYOUT CONTAINER --- */
     #chat-container {
       width: 100%;
       height: 100%;
@@ -123,7 +107,6 @@
       }
     }
 
-    /* --- HEADER --- */
     #header {
       height: 64px;
       padding: 0 24px;
@@ -137,6 +120,13 @@
       flex-shrink: 0;
     }
     
+    @media (max-width: 767px) {
+        #header {
+            height: 56px;
+            padding: 0 16px;
+        }
+    }
+
     .header-actions {
         display: flex;
         gap: 10px;
@@ -179,7 +169,6 @@
         background: var(--border-subtle);
     }
 
-    /* --- CHAT AREA --- */
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -189,12 +178,17 @@
       gap: 4px;
       scroll-behavior: smooth;
     }
+    
+    @media (max-width: 767px) {
+        #chat {
+            padding: 16px;
+        }
+    }
 
     #chat::-webkit-scrollbar { width: 6px; }
     #chat::-webkit-scrollbar-track { background: transparent; }
     #chat::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
 
-    /* --- MESSAGES --- */
     .msg-row {
       display: flex;
       width: 100%;
@@ -209,16 +203,12 @@
       margin-top: 16px;
     }
 
-    /* Alignment - Dynamic based on logged-in user */
-    /* Default: Lilo on right, Zizi on left */
     .msg-row.Lilo { justify-content: flex-end; }
     .msg-row.Zizi { justify-content: flex-start; }
     
-    /* When logged in as Zizi: Zizi on right, Lilo on left */
     html[data-user="Zizi"] .msg-row.Zizi { justify-content: flex-end; }
     html[data-user="Zizi"] .msg-row.Lilo { justify-content: flex-start; }
 
-    /* Bubble Styles */
     .msg {
       max-width: 75%;
       padding: 10px 16px;
@@ -230,43 +220,34 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Self Message (Applies to Lilo when logged in as Lilo, or Zizi when logged in as Zizi) */
-    /* The JS handles the class name. The CSS variable handles the color. */
     .msg.Lilo {
-      /* Lilo is only 'self' if data-user=Lilo. This color applies to Lilo's messages. */
       background: var(--lilo-color);
       color: var(--msg-me-text);
       border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
     }
     
     .msg.Zizi {
-      /* Zizi is only 'self' if data-user=Zizi. This color applies to Zizi's messages. */
-      background: var(--msg-other-bg); /* Default 'other' color */
+      background: var(--msg-other-bg);
       color: var(--msg-other-text);
       border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
     }
 
-    /* Dynamic User Override: If user is Lilo, Lilo messages are 'me', Zizi messages are 'other' */
-    /* If user is Zizi, Zizi messages are 'me', Lilo messages are 'other' */
     html[data-user="Lilo"] .msg.Lilo,
     html[data-user="Zizi"] .msg.Zizi {
-      background: var(--user-accent-color); /* The logged-in user's color */
+      background: var(--user-accent-color);
       color: var(--msg-me-text);
     }
     
     html[data-user="Lilo"] .msg.Zizi,
     html[data-user="Zizi"] .msg.Lilo {
-        background: var(--msg-other-bg); /* The other user's color */
+        background: var(--msg-other-bg);
         color: var(--msg-other-text);
     }
 
-    /* Fix rounded corners based on sender/receiver role */
     html[data-user="Lilo"] .msg.Lilo, html[data-user="Zizi"] .msg.Zizi {
-        /* Self message (always on right) */
         border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
     }
     html[data-user="Lilo"] .msg.Zizi, html[data-user="Zizi"] .msg.Lilo {
-        /* Other message (always on left) */
         border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
     }
     
@@ -292,7 +273,6 @@
       text-align: right;
     }
 
-    /* --- ACTIONS (Reply/React/Options) --- */
     .reply-button, .react-button, .msg-options-button {
       position: absolute;
       top: 50%;
@@ -313,56 +293,95 @@
       font-size: 14px;
     }
 
-    /* Hover logic */
     .msg-row:hover .reply-button,
     .msg-row:hover .react-button,
     .msg-row:hover .msg-options-button {
       opacity: 1;
     }
 
-    /* Positioning relative to message side */
-    /* Default: Lilo on right (buttons on left), Zizi on left (buttons on right) */
     .msg-row.Lilo .reply-button { left: -36px; right: auto; }
     .msg-row.Lilo .react-button { left: -76px; right: auto; }
 
     .msg-row.Zizi .reply-button { right: -36px; left: auto; }
     .msg-row.Zizi .react-button { right: -76px; left: auto; }
     
-    /* FIX START: Overrides for when Zizi is logged in to ensure buttons are on the inside */
-    /* When Zizi is logged in (data-user="Zizi"): */
-    /* Zizi's messages are on the right (Self), buttons must be on the left. */
     html[data-user="Zizi"] .msg-row.Zizi .reply-button { left: -36px; right: auto; }
     html[data-user="Zizi"] .msg-row.Zizi .react-button { left: -76px; right: auto; }
     
-    /* Lilo's messages are on the left (Other), buttons must be on the right. */
     html[data-user="Zizi"] .msg-row.Lilo .reply-button { right: -36px; left: auto; } 
     html[data-user="Zizi"] .msg-row.Lilo .react-button { right: -76px; left: auto; } 
-    /* FIX END */
 
     .reply-button:hover, .react-button:hover, .msg-options-button:hover {
-      background: var(--user-accent-color); /* Dynamic accent color */
+      background: var(--user-accent-color);
       color: white;
-      border-color: var(--user-accent-color); /* Dynamic accent color */
+      border-color: var(--user-accent-color);
       transform: translateY(-50%) scale(1.1);
     }
     
-    /* --- MESSAGE OPTIONS MENU --- */
-    /* Position options button further left than reaction button for *self* messages */
     html[data-user="Lilo"] .msg-row.Lilo .msg-options-button,
     html[data-user="Zizi"] .msg-row.Zizi .msg-options-button { 
         left: -116px; 
     }
     
+    @media (max-width: 767px) {
+        .reply-button, .react-button, .msg-options-button {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .reply-button,
+        html[data-user="Zizi"] .msg-row.Zizi .reply-button {
+            left: -32px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .react-button,
+        html[data-user="Zizi"] .msg-row.Zizi .react-button {
+            left: -64px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .msg-options-button,
+        html[data-user="Zizi"] .msg-row.Zizi .msg-options-button { 
+            left: -96px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Zizi .reply-button,
+        html[data-user="Zizi"] .msg-row.Lilo .reply-button {
+            right: -32px; 
+            left: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Zizi .react-button,
+        html[data-user="Zizi"] .msg-row.Lilo .react-button {
+            right: -64px; 
+            left: auto;
+        }
+    }
+
+
     .options-menu {
-        position: fixed; /* Changed to fixed for positioning relative to viewport */
-        background: var(--bg-app);
+        position: fixed;
+        background: var(--input-bg);
         border: 1px solid var(--border-subtle);
         border-radius: 8px;
         box-shadow: var(--shadow-md);
         z-index: 2000;
-        width: 150px;
+        min-width: 150px;
+        max-width: 200px;
         overflow: hidden;
-        animation: fadeInUp 0.15s ease-out;
+        visibility: hidden; 
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.15s ease-out, transform 0.15s ease-out, visibility 0.15s;
+    }
+    
+    .options-menu.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .options-menu button {
@@ -380,19 +399,18 @@
         transition: background 0.1s;
     }
 
-    .options-menu button:hover {
-        background: var(--input-bg);
+    .options-menu button:not(.delete-btn):hover {
+        background: var(--border-subtle);
     }
 
     .options-menu button.delete-btn {
-        color: #f85149; /* Red color for Delete */
+        color: #f85149;
     }
     .options-menu button.delete-btn:hover {
-        background: rgba(248, 81, 73, 0.1);
+        background: rgba(248, 81, 73, 0.15);
     }
 
 
-    /* --- REPLY INDICATOR (Inside Bubble) --- */
     .reply-indicator {
       background: rgba(0,0,0,0.15);
       border-left: 3px solid rgba(255,255,255,0.5);
@@ -411,7 +429,6 @@
         border-left-color: var(--text-secondary); 
     }
 
-    /* --- REACTIONS --- */
     .reactions-container {
       display: flex;
       flex-wrap: wrap;
@@ -420,10 +437,8 @@
       justify-content: flex-end;
     }
 
-    /* Default: Zizi messages on left, reactions on left */
     .msg.Zizi .reactions-container { justify-content: flex-start; }
     
-    /* When logged in as Zizi: Zizi messages on right, reactions on right */
     html[data-user="Zizi"] .msg.Zizi .reactions-container { justify-content: flex-end; }
     html[data-user="Zizi"] .msg.Lilo .reactions-container { justify-content: flex-start; }
 
@@ -442,19 +457,18 @@
     }
 
     .reaction.own-reaction {
-      border-color: var(--user-accent-color); /* Dynamic accent color */
+      border-color: var(--user-accent-color);
       background: color-mix(in srgb, var(--user-accent-color) 15%, transparent);
       color: var(--msg-me-text);
     }
     
     html[data-theme="bright"] .reaction.own-reaction {
-        background: var(--user-accent-color); /* Dynamic accent color */
+        background: var(--user-accent-color);
         color: white;
     }
 
     .reaction:hover { transform: scale(1.05); }
 
-    /* --- EMOJI PICKER --- */
     .emoji-picker {
       position: fixed;
       background: var(--bg-app);
@@ -516,7 +530,6 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
-    /* Responsive emoji picker */
     @media (max-width: 480px) {
       .emoji-picker {
         grid-template-columns: repeat(4, 1fr);
@@ -533,7 +546,6 @@
       }
     }
 
-    /* --- INPUT AREA --- */
     #msgForm {
       background: var(--bg-app);
       padding: 16px 24px;
@@ -554,7 +566,7 @@
     }
 
     #inputContainer:focus-within {
-      border-color: var(--border-focus); /* Dynamic accent color */
+      border-color: var(--border-focus);
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--user-accent-color) 20%, transparent);
     }
 
@@ -575,7 +587,6 @@
     #msgInput:focus { outline: none; }
     #msgInput::placeholder { color: var(--text-muted); }
 
-    /* Send Button (Uses Dynamic Accent Color) */
     button[type="submit"] {
       background: var(--user-accent-color); 
       color: white;
@@ -594,11 +605,10 @@
     }
     
     button[type="submit"]:hover { 
-        filter: brightness(0.85); /* Darken slightly on hover regardless of color */
+        filter: brightness(0.85);
     }
     button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Reply Context (Above Input) */
     #replyContainer {
       font-size: 0.85rem;
       margin-bottom: 8px;
@@ -609,7 +619,7 @@
       justify-content: space-between;
       align-items: center;
       background: color-mix(in srgb, var(--user-accent-color) 10%, transparent);
-      border-left: 3px solid var(--user-accent-color); /* Dynamic accent color */
+      border-left: 3px solid var(--user-accent-color);
       padding: 8px 12px;
       border-radius: 6px;
       color: var(--text-primary);
@@ -630,7 +640,6 @@
     
     .reply-close:hover { color: var(--text-primary); }
 
-    /* --- LOGIN SCREEN (Overlay) --- */
     #login-container {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -743,7 +752,6 @@
     .user-btn:hover { background: #2d333b; }
     html[data-theme="bright"] .user-btn:hover { background: #f0f4f8; }
 
-    /* SELECTED USER (USES DYNAMIC ACCENT COLOR) */
     .user-btn.selected {
       border-color: var(--user-accent-color);
       box-shadow: 0 0 0 1px var(--user-accent-color);
@@ -763,7 +771,6 @@
       color: var(--text-primary);
     }
     
-    /* SELECTED AVATAR (USES DYNAMIC ACCENT COLOR) */
     .user-btn.selected .user-avatar { 
       background: var(--user-accent-color); 
       color: white; 
@@ -777,7 +784,7 @@
 
     .login-btn {
       width: 100%;
-      background: var(--user-accent-color); /* Dynamic accent color */
+      background: var(--user-accent-color);
       color: white;
       border: none;
       padding: 20px 60px;
@@ -794,7 +801,6 @@
     .login-btn:hover { opacity: 0.85; }
     .login-btn:disabled { opacity: 0.5; cursor: default; }
 
-    /* --- OTHER UTILITIES --- */
     .logout-btn {
         background: var(--logout-bg);
         color: var(--logout-text);
@@ -819,11 +825,9 @@
         justify-content: center;
     }
     
-    /* Loading Spinner Color (must be visible on accent color) */
     .loading {
       border: 2px solid rgba(255,255,255,0.2);
       border-top-color: #fff;
-      /* Inherited size from parent */
     }
     html[data-theme="bright"] .loading {
         border: 2px solid rgba(255,255,255,0.2);
@@ -894,8 +898,8 @@
   loginContainer.innerHTML = `
     <div class="login-box">
       <div class="login-header">
-        <div class="login-title">LiZi Secure</div>
-        <div class="login-subtitle">P2P Encrypted Messaging</div>
+        <div class="login-title">LiZi</div>
+        <div class="login-subtitle">P2P Messaging</div>
       </div>
       <form id="loginForm" class="login-form">
         <div class="user-buttons">
@@ -916,7 +920,6 @@
     </div>
   `;
 
-  // Original script logic continues here...
   const liloTheme = {
     title: 'LiZi | Lilo',
     subtitle: 'Chatting with Zizi'
@@ -932,7 +935,6 @@
     if(subEl) subEl.textContent = theme.subtitle;
   }
   
-  // --- NEW USER-SPECIFIC THEME LOGIC ---
   function setUserAccent(userName) {
     if (userName === 'Zizi') {
         document.documentElement.setAttribute('data-user', 'Zizi');
@@ -956,7 +958,7 @@
         applyTheme(liloTheme);
       }
       
-      setUserAccent(username); // Set user accent on login
+      setUserAccent(username);
       return true;
     } catch (error) {
       if (error.code === 'auth/wrong-password') {
@@ -977,7 +979,7 @@
       await signOut(auth);
       currentUser = null;
       username = null;
-      setUserAccent(null); // Clear user accent on logout
+      setUserAccent(null);
       showLoginScreen();
     } catch (error) {
     }
@@ -997,7 +999,6 @@
   
     }, 15000);
     
-    // Ensure accent is cleared/defaulted when showing login
     setUserAccent(null); 
   }
 
@@ -1026,9 +1027,8 @@
     const passwordInput = document.getElementById("passwordInput");
     const loginBtn = loginForm.querySelector(".login-btn");
     let selectedEmail = null;
-    let selectedUser = null; // Track selected user for accent color in login screen
+    let selectedUser = null;
     
-    // Apply initial theme
     setTheme(getTheme());
     
 
@@ -1038,10 +1038,9 @@
         userButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         selectedEmail = btn.dataset.email;
-        selectedUser = btn.dataset.user; // Get selected user name
+        selectedUser = btn.dataset.user;
         loginBtn.disabled = false;
         
-        // Temporarily apply accent to login screen elements for preview
         setUserAccent(selectedUser);
         
         setTimeout(() => passwordInput.focus(), 100);
@@ -1132,7 +1131,7 @@
         applyTheme(liloTheme);
       }
       
-      setUserAccent(username); // Set user accent on auth change
+      setUserAccent(username);
       hideLoginScreen();
       startRealtimeListener();
       setTimeout(() => {
@@ -1143,7 +1142,7 @@
     } else {
       currentUser = null;
       username = null;
-      setUserAccent(null); // Clear user accent on auth change
+      setUserAccent(null);
       showLoginScreen();
     }
   });
@@ -1204,12 +1203,11 @@
     const msgEl = document.createElement("div");
     msgEl.classList.add("msg-row");
     const isCurrentUser = data.sender === username;
-    msgEl.classList.add(data.sender); // Always add Lilo or Zizi class to determine alignment
+    msgEl.classList.add(data.sender);
     msgEl.setAttribute("data-message-id", messageId);
     
-    // Use an inner class 'msg' for content styling
     const textEl = document.createElement("div");
-    textEl.className = "msg " + data.sender; // Pass sender name to inner div for role-based styling
+    textEl.className = "msg " + data.sender;
 
     const msgContent = document.createElement("div");
     msgContent.className = "msg-content";
@@ -1226,7 +1224,6 @@
     msgText.innerHTML = data.text.replace(/\n/g, '<br>');
     msgContent.appendChild(msgText);
     
-    // Add edited indicator
     if (data.edited) {
         const editedSpan = document.createElement("span");
         editedSpan.textContent = " (edited)";
@@ -1257,7 +1254,6 @@
     };
     textEl.appendChild(replyButton);
 
-    // Add reaction button
     const reactButton = document.createElement("button");
     reactButton.className = "react-button";
     reactButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
@@ -1268,7 +1264,6 @@
     };
     textEl.appendChild(reactButton);
     
-    // --- NEW: Add More Options button for self messages (Edit/Delete) ---
     if (isCurrentUser) {
       const optionsButton = document.createElement("button");
       optionsButton.className = "msg-options-button";
@@ -1281,9 +1276,7 @@
       };
       textEl.appendChild(optionsButton);
     }
-    // --- END NEW: Message Options ---
 
-    // Add reactions container
     if (data.reactions && Object.keys(data.reactions).length > 0) {
       const reactionsContainer = document.createElement("div");
       reactionsContainer.className = "reactions-container";
@@ -1343,16 +1336,13 @@
     updateReplyIndicator();
     msgInput.focus();
     
-    // START: Scroll message into view (User requested improvement)
     const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
     if (messageEl) {
-      // Scrolls the message element into the center of the chat window.
       messageEl.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center' 
       });
     }
-    // END: Scroll message into view
   }
 
   function clearReply() {
@@ -1375,7 +1365,7 @@
       
       const fullText = `Replying to ${replyingTo.sender}: ${replyingTo.text}`;
       replyText.textContent = fullText;
-      replyText.title = fullText; // NEW: Added title for accessibility
+      replyText.title = fullText;
       
       const replyClose = document.createElement("button");
       replyClose.className = "reply-close";
@@ -1389,11 +1379,9 @@
     }
   }
 
-  // Reaction and Emoji Picker Functions
   const commonEmojis = ['❤️','😍','😘','🥰','🤤','😂','🙂','☺','🥹','👍','😐','😑','🙄','😒','😳','🥲'];
   
   function showEmojiPicker(button, messageId) {
-    // Remove any existing emoji picker
     const existingPicker = document.querySelector('.emoji-picker');
     if (existingPicker) {
       existingPicker.remove();
@@ -1417,32 +1405,26 @@
       picker.appendChild(emojiBtn);
     });
 
-    // Positioning logic
     const rect = button.getBoundingClientRect();
-    const pickerWidth = 280; // max-width from CSS
-    const pickerHeight = 200; // approximate height
+    const pickerWidth = 280;
+    const pickerHeight = 200;
     const padding = 12;
     
-    // Determine vertical position (above or below button)
     let top, bottom;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
     
     if (spaceBelow >= pickerHeight + padding || spaceBelow > spaceAbove) {
-      // Position below button
       top = rect.bottom + padding;
       bottom = 'auto';
     } else {
-      // Position above button
       bottom = window.innerHeight - rect.top + padding;
       top = 'auto';
     }
     
-    // Determine horizontal position (centered on button, clamped to screen)
     let left = rect.left + (rect.width / 2) - (pickerWidth / 2);
     const rightEdge = left + pickerWidth;
     
-    // Clamp to screen edges
     if (left < padding) {
       left = padding;
     } else if (rightEdge > window.innerWidth - padding) {
@@ -1455,7 +1437,6 @@
 
     document.body.appendChild(picker);
     
-    // Close picker when clicking outside or pressing Escape
     const closePicker = (e) => {
       if (!picker.contains(e.target) && !button.contains(e.target)) {
         picker.remove();
@@ -1472,7 +1453,6 @@
       }
     };
     
-    // Use setTimeout to avoid immediate close on click that opened it
     setTimeout(() => {
       document.addEventListener('click', closePicker);
       document.addEventListener('keydown', handleEscape);
@@ -1495,7 +1475,6 @@
         reactions[emoji] = [];
       }
       
-      // Add user to reaction if not already there
       if (!reactions[emoji].includes(username)) {
         reactions[emoji].push(username);
         
@@ -1503,7 +1482,6 @@
           reactions: reactions
         });
         
-        // Show visual feedback
         showReactionFeedback(messageId, emoji);
       }
     } catch (error) {
@@ -1515,7 +1493,6 @@
     const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageEl) return;
     
-    // Visual pop handled by CSS updates now
   }
 
   async function toggleReaction(messageId, emoji) {
@@ -1537,13 +1514,11 @@
       const userIndex = reactions[emoji].indexOf(username);
       
       if (userIndex > -1) {
-        // Remove user from reaction
         reactions[emoji].splice(userIndex, 1);
         if (reactions[emoji].length === 0) {
           delete reactions[emoji];
         }
       } else {
-        // Add user to reaction
         reactions[emoji].push(username);
       }
       
@@ -1555,10 +1530,7 @@
     }
   }
   
-  // --- MESSAGE EDITING & DELETION LOGIC (NEW) ---
-
   function showOptionsMenu(button, messageId, messageData) {
-      // Remove any existing options menu
       const existingMenu = document.querySelector('.options-menu');
       if (existingMenu) {
           existingMenu.remove();
@@ -1568,7 +1540,6 @@
       const menu = document.createElement('div');
       menu.className = 'options-menu';
 
-      // Edit Button
       const editBtn = document.createElement('button');
       editBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit`;
       editBtn.onclick = (e) => {
@@ -1578,7 +1549,6 @@
       };
       menu.appendChild(editBtn);
 
-      // Delete Button
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'delete-btn';
       deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Delete`;
@@ -1591,39 +1561,79 @@
       };
       menu.appendChild(deleteBtn);
 
-      // Positioning logic (relative to the button's message bubble)
-      const bubbleEl = button.closest('.msg');
-      const bubbleRect = bubbleEl.getBoundingClientRect();
-      
-      // Position menu to the top-right of the bubble
-      menu.style.top = `${bubbleRect.top}px`;
-      menu.style.right = `${window.innerWidth - bubbleRect.right}px`;
-      
       document.body.appendChild(menu);
 
-      // Close menu when clicking outside
+      const rect = button.getBoundingClientRect();
+      const menuWidth = 150;
+      const menuHeight = 90;
+      const padding = 8;
+
+      let top, left;
+
+      if (rect.top > menuHeight + padding) {
+          top = rect.top - menuHeight - 5;
+      } else {
+          top = rect.bottom + 5;
+      }
+
+      left = rect.left + (rect.width / 2) - (menuWidth / 2);
+
+      if (left + menuWidth > window.innerWidth - padding) {
+          left = window.innerWidth - menuWidth - padding;
+      }
+
+      if (left < padding) {
+          left = padding;
+      }
+      
+      if (top + menuHeight > window.innerHeight - padding) {
+          top = window.innerHeight - menuHeight - padding;
+      }
+      if (top < padding) {
+          top = padding;
+      }
+
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+      
+      setTimeout(() => {
+          menu.classList.add('show');
+      }, 0);
+
+
       const closeMenu = (e) => {
           if (!menu.contains(e.target) && !button.contains(e.target)) {
               menu.remove();
               document.removeEventListener('click', closeMenu);
+              document.removeEventListener('keydown', handleEscape);
           }
       };
+      
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          menu.remove();
+          document.removeEventListener('click', closeMenu);
+          document.removeEventListener('keydown', handleEscape);
+        }
+      };
+
       setTimeout(() => {
           document.addEventListener('click', closeMenu);
+          document.addEventListener('keydown', handleEscape);
       }, 100);
   }
 
   async function editMessage(messageId, messageData) {
       const newText = prompt("Edit your message:", messageData.text);
       if (newText === null || newText.trim() === messageData.text.trim() || newText.trim() === "") {
-          return; // User cancelled, text is the same, or text is empty
+          return;
       }
 
       try {
           const messageRef = doc(db, "messages", messageId);
           await updateDoc(messageRef, {
               text: newText.trim(),
-              edited: true // Flag to indicate the message was edited
+              edited: true
           });
       } catch (error) {
           alert("Failed to edit message. " + error.message);
@@ -1638,8 +1648,6 @@
           alert("Failed to delete message. " + error.message);
       }
   }
-
-  // --- END MESSAGE EDITING & DELETION LOGIC ---
 
   let loadMoreTimeout;
   chatDiv.addEventListener('scroll', () => {
@@ -1735,7 +1743,6 @@
       e.preventDefault();
     }
     
-    // Close emoji picker with Escape
     if (e.key === 'Escape') {
       const emojiPicker = document.querySelector('.emoji-picker');
       if (emojiPicker) {
@@ -1744,13 +1751,12 @@
     }
   });
   
-  // NEW: Enter to Send, Shift+Enter for Newline (User requested improvement)
   msgInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevents the default textarea newline
-      msgForm.dispatchEvent(new Event('submit')); // Triggers the form submission
+      e.preventDefault();
+      msgForm.dispatchEvent(new Event('submit'));
     }
-    autoResizeTextarea(); // Keep auto-resize working
+    autoResizeTextarea();
   });
   
   msgForm.addEventListener("submit", async (e) => {
@@ -1759,7 +1765,6 @@
     if (!text || !currentUser) return;
 
     const submitBtn = msgForm.querySelector('button[type="submit"]');
-    // Save innerHTML which includes the SVG icon
     const originalContent = submitBtn.innerHTML;
     submitBtn.innerHTML = '<div class="loading"></div>';
     submitBtn.disabled = true;
@@ -1782,12 +1787,11 @@
       
       const docRef = await addDoc(msgsCol, messageData);
       
-      // Reset message input box
       msgInput.value = "";
       msgInput.style.height = '24px';
       msgInput.style.direction = 'ltr';
       msgInput.style.textAlign = 'left';
-      autoResizeTextarea(); // Ensure textarea resets properly
+      autoResizeTextarea();
 
       clearReply();
       
@@ -1826,7 +1830,6 @@
     }
   });
 
-  // Theme Toggle Logic
   const htmlEl = document.documentElement;
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const themeIcon = document.getElementById('theme-icon');
@@ -1845,7 +1848,7 @@
       if (theme === 'dark') {
           themeIcon.innerHTML = `
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          `; // Moon Icon
+          `;
       } else {
           themeIcon.innerHTML = `
             <circle cx="12" cy="12" r="5"></circle>
@@ -1857,7 +1860,7 @@
             <line x1="21" y1="12" x2="23" y2="12"></line>
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          `; // Sun Icon
+          `;
       }
   }
 
@@ -1869,7 +1872,6 @@
     });
   }
   
-  // Apply initial theme
   setTheme(getTheme());
   
 </script>
