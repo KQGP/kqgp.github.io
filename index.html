@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>LiZi | P2P Chat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><style>.bg{fill:%230f1117}.c1{fill:%232563eb}.c2{fill:%23ec4899}.t{font:60px sans-serif;font-weight:700;}.t1{fill:white}</style><rect class='bg' width='100' height='100' rx='20'/><text class='t t1' x='38' y='65' text-anchor='end' style='fill:%232563eb'>L</text><text class='t t1' x='62' y='65' text-anchor='start' style='fill:%23ec4899'>Z</text><circle cx='38' cy='48' r='10' style='fill:%232563eb'/><circle cx='62' cy='48' r='10' style='fill:%23ec4899'/></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lilo-color: #2563eb;
+      --zizi-color: #ec4899;
+      --user-accent-color: var(--lilo-color);
+      
+      --bg-body: #0f1117;
+      --bg-app: #161b22;
+      --bg-header: rgba(22, 27, 34, 0.85);
+      
+      --msg-me-bg: var(--user-accent-color);
+      --msg-me-text: #ffffff;
+      --msg-other-bg: #2d333b; 
+      --msg-other-text: #e6edf3;
+      
+      --input-bg: #21262d;
+      --border-subtle: #30363d;
+      --border-focus: var(--user-accent-color);
+      
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+      --radius-bubble: 18px;
+      --radius-app: 24px;
+
+      --logout-text: var(--text-muted);
+      --logout-bg: transparent;
+      --logout-border: var(--border-subtle);
+    }
+    
+    html[data-user="Zizi"] {
+      --user-accent-color: var(--zizi-color);
+    }
+    
+    html[data-theme="bright"] {
+      --bg-body: #f0f4f8;
+      --bg-app: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.95);
+      
+      --msg-me-bg: var(--user-accent-color);
+      --msg-other-bg: #e5e7eb;
+      --msg-other-text: #1f2937;
+      
+      --input-bg: #f9fafb;
+      --border-subtle: #d1d5db;
+      --border-focus: var(--user-accent-color);
+      
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+
+      --logout-text: var(--text-primary);
+      --logout-bg: var(--bg-app);
+      --logout-border: var(--border-subtle);
+    }
+
+    html[data-theme="bright"] body {
+        color: var(--text-primary);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-primary);
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    #chat-container {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-app);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    @media (min-width: 768px) {
+      #chat-container {
+        max-width: 900px;
+        height: 95vh;
+        margin-top: 2.5vh;
+        border-radius: var(--radius-app);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-subtle);
+      }
+    }
+
+    #header {
+      height: 64px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+    
+    @media (max-width: 767px) {
+        #header {
+            height: 56px;
+            padding: 0 16px;
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    #title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #title::before {
+      content: '';
+      display: block;
+      width: 10px;
+      height: 10px;
+      background: #238636;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(35, 134, 54, 0.2);
+    }
+
+    html[data-theme="bright"] #title::before {
+        background: #059669;
+    }
+
+    #subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.05);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    
+    html[data-theme="bright"] #subtitle {
+        background: var(--border-subtle);
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scroll-behavior: smooth;
+    }
+    
+    @media (max-width: 767px) {
+        #chat {
+            padding: 16px;
+        }
+    }
+
+    #chat::-webkit-scrollbar { width: 6px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+
+    .msg-row {
+      display: flex;
+      width: 100%;
+      position: relative;
+      margin-bottom: 2px;
+      padding: 0 10px;
+    }
+    
+    .msg-row + .msg-row { margin-top: 2px; }
+    .msg-row:not(:has(+ .msg-row[class*="Lilo"])) + .msg-row.Lilo,
+    .msg-row:not(:has(+ .msg-row[class*="Zizi"])) + .msg-row.Zizi {
+      margin-top: 16px;
+    }
+
+    .msg-row.Lilo { justify-content: flex-end; }
+    .msg-row.Zizi { justify-content: flex-start; }
+    
+    html[data-user="Zizi"] .msg-row.Zizi { justify-content: flex-end; }
+    html[data-user="Zizi"] .msg-row.Lilo { justify-content: flex-start; }
+
+    .msg {
+      max-width: 75%;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      position: relative;
+      word-wrap: break-word;
+      transition: transform 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .msg.Lilo {
+      background: var(--lilo-color);
+      color: var(--msg-me-text);
+      border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
+    }
+    
+    .msg.Zizi {
+      background: var(--msg-other-bg);
+      color: var(--msg-other-text);
+      border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+    }
+
+    html[data-user="Lilo"] .msg.Lilo,
+    html[data-user="Zizi"] .msg.Zizi {
+      background: var(--user-accent-color);
+      color: var(--msg-me-text);
+    }
+    
+    html[data-user="Lilo"] .msg.Zizi,
+    html[data-user="Zizi"] .msg.Lilo {
+        background: var(--msg-other-bg);
+        color: var(--msg-other-text);
+    }
+
+    html[data-user="Lilo"] .msg.Lilo, html[data-user="Zizi"] .msg.Zizi {
+        border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
+    }
+    html[data-user="Lilo"] .msg.Zizi, html[data-user="Zizi"] .msg.Lilo {
+        border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+    }
+    
+    .msg:hover {
+      box-shadow: var(--shadow-md);
+    }
+    
+    html[data-theme="bright"] .msg:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+
+    .msg-text {
+      white-space: pre-wrap;
+    }
+
+    .msg-timestamp {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      margin-top: 4px;
+      opacity: 0.6;
+      text-align: right;
+    }
+
+    .reply-button, .react-button, .msg-options-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-app);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.2s ease;
+      z-index: 5;
+      font-size: 14px;
+    }
+
+    .msg-row:hover .reply-button,
+    .msg-row:hover .react-button,
+    .msg-row:hover .msg-options-button {
+      opacity: 1;
+    }
+
+    .msg-row.Lilo .reply-button { left: -36px; right: auto; }
+    .msg-row.Lilo .react-button { left: -76px; right: auto; }
+
+    .msg-row.Zizi .reply-button { right: -36px; left: auto; }
+    .msg-row.Zizi .react-button { right: -76px; left: auto; }
+    
+    html[data-user="Zizi"] .msg-row.Zizi .reply-button { left: -36px; right: auto; }
+    html[data-user="Zizi"] .msg-row.Zizi .react-button { left: -76px; right: auto; }
+    
+    html[data-user="Zizi"] .msg-row.Lilo .reply-button { right: -36px; left: auto; } 
+    html[data-user="Zizi"] .msg-row.Lilo .react-button { right: -76px; left: auto; } 
+
+    .reply-button:hover, .react-button:hover, .msg-options-button:hover {
+      background: var(--user-accent-color);
+      color: white;
+      border-color: var(--user-accent-color);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    html[data-user="Lilo"] .msg-row.Lilo .msg-options-button,
+    html[data-user="Zizi"] .msg-row.Zizi .msg-options-button { 
+        left: -116px; 
+    }
+    
+    @media (max-width: 767px) {
+        .reply-button, .react-button, .msg-options-button {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .reply-button,
+        html[data-user="Zizi"] .msg-row.Zizi .reply-button {
+            left: -32px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .react-button,
+        html[data-user="Zizi"] .msg-row.Zizi .react-button {
+            left: -64px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Lilo .msg-options-button,
+        html[data-user="Zizi"] .msg-row.Zizi .msg-options-button { 
+            left: -96px;
+            right: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Zizi .reply-button,
+        html[data-user="Zizi"] .msg-row.Lilo .reply-button {
+            right: -32px; 
+            left: auto;
+        }
+        
+        html[data-user="Lilo"] .msg-row.Zizi .react-button,
+        html[data-user="Zizi"] .msg-row.Lilo .react-button {
+            right: -64px; 
+            left: auto;
+        }
+    }
+
+
+    .options-menu {
+        position: fixed;
+        background: var(--input-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        z-index: 2000;
+        min-width: 150px;
+        max-width: 200px;
+        overflow: hidden;
+        visibility: hidden; 
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.15s ease-out, transform 0.15s ease-out, visibility 0.15s;
+    }
+    
+    .options-menu.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .options-menu button {
+        width: 100%;
+        padding: 10px 15px;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.1s;
+    }
+
+    .options-menu button:not(.delete-btn):hover {
+        background: var(--border-subtle);
+    }
+
+    .options-menu button.delete-btn {
+        color: #f85149;
+    }
+    .options-menu button.delete-btn:hover {
+        background: rgba(248, 81, 73, 0.15);
+    }
+
+
+    .reply-indicator {
+      background: rgba(0,0,0,0.15);
+      border-left: 3px solid rgba(255,255,255,0.5);
+      padding: 6px 10px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .msg.Zizi .reply-indicator,
+    .msg.Lilo .reply-indicator {
+        background: rgba(0,0,0,0.1);
+        border-left-color: var(--text-secondary); 
+    }
+
+    .reactions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+      justify-content: flex-end;
+    }
+
+    .msg.Zizi .reactions-container { justify-content: flex-start; }
+    
+    html[data-user="Zizi"] .msg.Zizi .reactions-container { justify-content: flex-end; }
+    html[data-user="Zizi"] .msg.Lilo .reactions-container { justify-content: flex-start; }
+
+    .reaction {
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .reaction.own-reaction {
+      border-color: var(--user-accent-color);
+      background: color-mix(in srgb, var(--user-accent-color) 15%, transparent);
+      color: var(--msg-me-text);
+    }
+    
+    html[data-theme="bright"] .reaction.own-reaction {
+        background: var(--user-accent-color);
+        color: white;
+    }
+
+    .reaction:hover { transform: scale(1.05); }
+
+    .emoji-picker {
+      position: fixed;
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: auto;
+      min-width: 200px;
+      max-width: 280px;
+      backdrop-filter: blur(12px);
+      animation: fadeInUp 0.2s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .emoji-option {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: var(--input-bg);
+      color: inherit;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      padding: 0;
+      margin: 0;
+    }
+
+    .emoji-option:hover {
+      background: var(--user-accent-color);
+      border-color: var(--user-accent-color);
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--user-accent-color) 30%, transparent);
+    }
+
+    .emoji-option:active {
+      transform: scale(0.95);
+    }
+
+    html[data-theme="bright"] .emoji-picker {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (max-width: 480px) {
+      .emoji-picker {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        padding: 10px;
+        min-width: 180px;
+        max-width: 240px;
+      }
+
+      .emoji-option {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+      }
+    }
+
+    #msgForm {
+      background: var(--bg-app);
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+      z-index: 20;
+    }
+
+    #inputContainer {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      background: var(--input-bg);
+      padding: 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: border-color 0.2s;
+    }
+
+    #inputContainer:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--user-accent-color) 20%, transparent);
+    }
+
+    #msgInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      line-height: 1.4;
+    }
+
+    #msgInput:focus { outline: none; }
+    #msgInput::placeholder { color: var(--text-muted); }
+
+    button[type="submit"] {
+      background: var(--user-accent-color); 
+      color: white;
+      border: none;
+      border-radius: 14px;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+    
+    button[type="submit"]:hover { 
+        filter: brightness(0.85);
+    }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #replyContainer {
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .reply-indicator-active {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: color-mix(in srgb, var(--user-accent-color) 10%, transparent);
+      border-left: 3px solid var(--user-accent-color);
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: var(--text-primary);
+    }
+    
+    html[data-theme="bright"] .reply-indicator-active {
+        background: color-mix(in srgb, var(--user-accent-color) 5%, white);
+    }
+
+    .reply-close {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    
+    .reply-close:hover { color: var(--text-primary); }
+
+    #login-container {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-body);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .login-header {
+      margin-bottom: 24px;
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .login-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-group {
+      width: 100%;
+    }
+
+    #passwordInput {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    #passwordInput:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--user-accent-color) 20%, transparent);
+    }
+
+    #passwordInput::placeholder {
+      color: var(--text-muted);
+    }
+
+    .error-message {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      color: #f85149;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-top: -8px;
+      text-align: left;
+    }
+
+    html[data-theme="bright"] .error-message {
+      background: rgba(248, 81, 73, 0.15);
+      border-color: rgba(248, 81, 73, 0.4);
+    }
+
+    .user-buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .user-btn {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-btn:hover { background: #2d333b; }
+    html[data-theme="bright"] .user-btn:hover { background: #f0f4f8; }
+
+    .user-btn.selected {
+      border-color: var(--user-accent-color);
+      box-shadow: 0 0 0 1px var(--user-accent-color);
+      background: color-mix(in srgb, var(--user-accent-color) 10%, transparent);
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+    }
+    
+    .user-btn.selected .user-avatar { 
+      background: var(--user-accent-color); 
+      color: white; 
+    }
+
+    .user-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--user-accent-color);
+      color: white;
+      border: none;
+      padding: 20px 60px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      min-height: 45px;
+      box-sizing: border-box;
+    }
+    
+    .login-btn:hover { opacity: 0.85; }
+    .login-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .logout-btn {
+        background: var(--logout-bg);
+        color: var(--logout-text);
+        border: 1px solid var(--logout-border);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .logout-btn:hover { 
+        color: var(--text-primary); 
+        border-color: var(--text-secondary); 
+    }
+    
+    #theme-toggle-btn {
+        padding: 8px;
+        width: 34px;
+        height: 34px;
+        justify-content: center;
+    }
+    
+    .loading {
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+    }
+    html[data-theme="bright"] .loading {
+        border: 2px solid rgba(255,255,255,0.2);
+        border-top-color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="chat-container">
+    <div id="header">
+      <div id="title">LiZi <span id="subtitle" style="margin-left: 8px;">Connecting...</span></div>
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="logout-btn" title="Toggle Theme">
+            <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
+        <button class="logout-btn" id="logout-button" style="display: none;">End Session</button>
+      </div>
+    </div>
+    
+    <div id="chat">
+      </div>
+    
+    <form id="msgForm">
+      <div id="replyContainer"></div>
+      <div id="inputContainer">
+        <textarea id="msgInput" placeholder="Type a secure message..." autocomplete="off" rows="1"></textarea>
+        <button type="submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, startAfter, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCZwfoIUd4TdBwsyyQHUNlMuco0sZHuD0",
+    authDomain: "lizi-df814.firebaseapp.com",
+    projectId: "lizi-df814",
+    storageBucket: "lizi-df814.firebasestorage.app",
+    messagingSenderId: "607740895641",
+    appId: "1:607740895641:web:2156f5dccc60a6cc67b308",
+    measurementId: "G-FSPPKC343E"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let username = null;
+  let currentUser = null;
+
+  const chatDiv = document.getElementById("chat");
+  const msgForm = document.getElementById("msgForm");
+  const msgInput = document.getElementById("msgInput");
+  const replyContainer = document.getElementById("replyContainer");
+
+
+  const loginContainer = document.createElement("div");
+  loginContainer.id = "login-container";
+  loginContainer.innerHTML = `
+    <div class="login-box">
+      <div class="login-header">
+        <div class="login-title">LiZi</div>
+        <div class="login-subtitle">P2P Messaging</div>
+      </div>
+      <form id="loginForm" class="login-form">
+        <div class="user-buttons">
+          <button type="button" class="user-btn" data-user="Lilo" data-email="lilo@lizi.app">
+            <div class="user-avatar">L</div>
+            <div class="user-name">Lilo</div>
+          </button>
+          <button type="button" class="user-btn" data-user="Zizi" data-email="zizi@lizi.app">
+            <div class="user-avatar">Z</div>
+            <div class="user-name">Zizi</div>
+          </button>
+        </div>
+        <div class="input-group">
+          <input type="password" id="passwordInput" placeholder="Enter Password" required>
+        </div>
+        <button type="submit" class="login-btn" disabled>Authenticate</button>
+      </form>
+    </div>
+  `;
+
+  const liloTheme = {
+    title: 'LiZi | Lilo',
+    subtitle: 'Chatting with Zizi'
+  };
+  const ziziTheme = {
+    title: 'LiZi | Zizi',
+    subtitle: 'Chatting with Lilo'
+  };
+
+  function applyTheme(theme) {
+    document.title = theme.title;
+    const subEl = document.getElementById('subtitle');
+    if(subEl) subEl.textContent = theme.subtitle;
+  }
+  
+  function setUserAccent(userName) {
+    if (userName === 'Zizi') {
+        document.documentElement.setAttribute('data-user', 'Zizi');
+    } else if (userName === 'Lilo') {
+        document.documentElement.setAttribute('data-user', 'Lilo');
+    } else {
+        document.documentElement.removeAttribute('data-user');
+    }
+  }
+
+  async function loginUser(email, password) {
+    try {
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      currentUser = userCredential.user;
+      username = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1).toLowerCase();
+      
+      if (username === 'Zizi') {
+        applyTheme(ziziTheme);
+      } else if (username === 'Lilo') {
+        applyTheme(liloTheme);
+      }
+      
+      setUserAccent(username);
+      return true;
+    } catch (error) {
+      if (error.code === 'auth/wrong-password') {
+        
+      } else if (error.code === 'auth/user-not-found') {
+        
+      } else if (error.code === 'auth/network-request-failed') {
+        
+      } else {
+        
+      }
+      return false;
+    }
+  }
+
+  async function logoutUser() {
+    try {
+      await signOut(auth);
+      currentUser = null;
+      username = null;
+      setUserAccent(null);
+      showLoginScreen();
+    } catch (error) {
+    }
+  }
+
+  let loginTimeout;
+  
+  function showLoginScreen() {
+    document.body.appendChild(loginContainer);
+    document.getElementById("chat-container").style.display = "none";
+    
+    if (loginTimeout) {
+      clearTimeout(loginTimeout);
+    }
+    
+    loginTimeout = setTimeout(() => {
+  
+    }, 15000);
+    
+    setUserAccent(null); 
+  }
+
+  function hideLoginScreen() {
+    if (loginTimeout) {
+      clearTimeout(loginTimeout);
+      loginTimeout = null;
+    }
+    
+    if (loginContainer.parentNode) {
+      loginContainer.parentNode.removeChild(loginContainer);
+    }
+    document.getElementById("chat-container").style.display = "flex";
+    
+
+    const logoutBtn = document.getElementById("logout-button");
+    if (logoutBtn) {
+      logoutBtn.style.display = "flex";
+      logoutBtn.onclick = logoutUser;
+    }
+  }
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("loginForm");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginBtn = loginForm.querySelector(".login-btn");
+    let selectedEmail = null;
+    let selectedUser = null;
+    
+    setTheme(getTheme());
+    
+
+    const userButtons = document.querySelectorAll(".user-btn");
+    userButtons.forEach(btn => {
+      const handleSelection = () => {
+        userButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedEmail = btn.dataset.email;
+        selectedUser = btn.dataset.user;
+        loginBtn.disabled = false;
+        
+        setUserAccent(selectedUser);
+        
+        setTimeout(() => passwordInput.focus(), 100);
+      };
+      
+      btn.addEventListener("click", handleSelection);
+      btn.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        handleSelection();
+      });
+    });
+
+    passwordInput.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      passwordInput.focus();
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const password = passwordInput.value.trim();
+      
+      if (!selectedEmail || !password) {
+        if (!selectedEmail) {
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "error-message";
+          errorMsg.textContent = "Please select a user first.";
+          loginForm.appendChild(errorMsg);
+          setTimeout(() => errorMsg.remove(), 3000);
+        }
+        return;
+      }
+
+      const originalText = loginBtn.textContent;
+      loginBtn.textContent = "Authenticating...";
+      loginBtn.disabled = true;
+
+      const existingError = loginForm.querySelector(".error-message");
+      if (existingError) {
+        existingError.remove();
+      }
+
+      try {
+        const success = await loginUser(selectedEmail, password);
+        
+        if (success) {
+          hideLoginScreen();
+          startRealtimeListener();
+          setTimeout(() => msgInput.focus(), 500);
+        } else {
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "error-message";
+          errorMsg.textContent = "Invalid password.";
+          loginForm.appendChild(errorMsg);
+          passwordInput.value = "";
+          passwordInput.focus();
+        }
+      } catch (error) {
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "error-message";
+        errorMsg.textContent = "Network error.";
+        loginForm.appendChild(errorMsg);
+      }
+
+      loginBtn.textContent = originalText;
+      loginBtn.disabled = false;
+    });
+
+    if (window.innerWidth <= 767) {
+      setTimeout(() => {
+        const firstUserBtn = userButtons[0];
+        if (firstUserBtn) {
+          firstUserBtn.click();
+        }
+      }, 100);
+    }
+  });
+
+
+  onAuthStateChanged(auth, (user) => {
+    
+    if (user) {
+      currentUser = user;
+              username = user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1).toLowerCase();
+      if (username === 'Zizi') {
+        applyTheme(ziziTheme);
+      } else if (username === 'Lilo') {
+        applyTheme(liloTheme);
+      }
+      
+      setUserAccent(username);
+      hideLoginScreen();
+      startRealtimeListener();
+      setTimeout(() => {
+        if (msgInput) {
+          msgInput.focus();
+        }
+      }, 500);
+    } else {
+      currentUser = null;
+      username = null;
+      setUserAccent(null);
+      showLoginScreen();
+    }
+  });
+
+
+  showLoginScreen();
+
+  const MESSAGE_LIMIT = 20;
+  const BATCH_SIZE = 10;
+  let lastMessage = null;
+  let isLoading = false;
+  let isOnline = navigator.onLine;
+  let replyingTo = null;
+
+  const msgsCol = collection(db, "messages");
+  
+  const msgsQuery = query(msgsCol, orderBy("timestamp", "desc"), limit(MESSAGE_LIMIT));
+
+  let unsubscribe;
+  
+  function startRealtimeListener() {
+    if (!currentUser) return;
+    
+    try {
+      unsubscribe = onSnapshot(msgsQuery, 
+        (snapshot) => {
+          chatDiv.innerHTML = '';
+          
+          const reversedDocs = [...snapshot.docs].reverse();
+          
+          reversedDocs.forEach((doc) => {
+            const data = doc.data();
+            const msgEl = createMessageElement(data, doc.id);
+            chatDiv.appendChild(msgEl);
+          });
+          
+          if (snapshot.docs.length > 0) {
+            lastMessage = snapshot.docs[snapshot.docs.length - 1];
+          }
+          
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        },
+        (error) => {
+          
+          setTimeout(() => {
+            if (unsubscribe) {
+              unsubscribe();
+            }
+            startRealtimeListener();
+          }, 10000);
+        }
+      );
+    } catch (error) {
+    }
+  }
+
+  function createMessageElement(data, messageId) {
+    const msgEl = document.createElement("div");
+    msgEl.classList.add("msg-row");
+    const isCurrentUser = data.sender === username;
+    msgEl.classList.add(data.sender);
+    msgEl.setAttribute("data-message-id", messageId);
+    
+    const textEl = document.createElement("div");
+    textEl.className = "msg " + data.sender;
+
+    const msgContent = document.createElement("div");
+    msgContent.className = "msg-content";
+    
+    if (data.replyTo) {
+      const replyIndicator = createReplyIndicator(data.replyTo);
+      msgContent.appendChild(replyIndicator);
+    }
+    
+
+    const msgText = document.createElement("div");
+    msgText.className = "msg-text";
+
+    msgText.innerHTML = data.text.replace(/\n/g, '<br>');
+    msgContent.appendChild(msgText);
+    
+    if (data.edited) {
+        const editedSpan = document.createElement("span");
+        editedSpan.textContent = " (edited)";
+        editedSpan.style.fontSize = "0.75em";
+        editedSpan.style.opacity = "0.7";
+        msgText.appendChild(editedSpan);
+    }
+
+    const tsEl = document.createElement("div");
+    tsEl.className = "msg-timestamp";
+    tsEl.textContent = "--:--";
+    setTimeout(() => {
+      const timestamp = data.timestamp || new Date();
+      tsEl.textContent = formatShortTimestamp(timestamp);
+    }, 100);
+    msgContent.appendChild(tsEl);
+    
+    textEl.appendChild(msgContent);
+    
+
+    const replyButton = document.createElement("button");
+    replyButton.className = "reply-button";
+    replyButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16l-6-6 6-6"/><path d="M20 21v-8a4 4 0 0 0-4-4H5"/></svg>`;
+    replyButton.title = "Reply";
+    replyButton.onclick = (e) => {
+      e.stopPropagation();
+      setReplyTo(data, messageId);
+    };
+    textEl.appendChild(replyButton);
+
+    const reactButton = document.createElement("button");
+    reactButton.className = "react-button";
+    reactButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
+    reactButton.title = "React";
+    reactButton.onclick = (e) => {
+      e.stopPropagation();
+      showEmojiPicker(reactButton, messageId);
+    };
+    textEl.appendChild(reactButton);
+    
+    if (isCurrentUser) {
+      const optionsButton = document.createElement("button");
+      optionsButton.className = "msg-options-button";
+      optionsButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>`;
+      optionsButton.title = "More Options";
+      
+      optionsButton.onclick = (e) => {
+        e.stopPropagation();
+        showOptionsMenu(optionsButton, messageId, data);
+      };
+      textEl.appendChild(optionsButton);
+    }
+
+    if (data.reactions && Object.keys(data.reactions).length > 0) {
+      const reactionsContainer = document.createElement("div");
+      reactionsContainer.className = "reactions-container";
+      
+      Object.entries(data.reactions).forEach(([emoji, users]) => {
+        const reaction = document.createElement("div");
+        reaction.className = "reaction";
+        if (users.includes(username)) {
+          reaction.classList.add("own-reaction");
+        }
+        
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "reaction-emoji";
+        emojiSpan.textContent = emoji;
+        
+        const countSpan = document.createElement("span");
+        countSpan.className = "reaction-count";
+        countSpan.textContent = users.length;
+        
+        reaction.appendChild(emojiSpan);
+        reaction.appendChild(countSpan);
+        
+        reaction.onclick = (e) => {
+          e.stopPropagation();
+          toggleReaction(messageId, emoji);
+        };
+        
+        reactionsContainer.appendChild(reaction);
+      });
+      
+      msgContent.appendChild(reactionsContainer);
+    }
+    
+    msgEl.appendChild(textEl);
+    return msgEl;
+  }
+
+  function createReplyIndicator(replyData) {
+    const replyIndicator = document.createElement("div");
+    replyIndicator.className = "reply-indicator";
+    
+    const replyText = document.createElement("div");
+    replyText.className = "reply-text";
+    replyText.innerHTML = `<b>${replyData.sender}:</b> ` + replyData.text;
+    
+    replyIndicator.appendChild(replyText);
+    
+    return replyIndicator;
+  }
+
+  function setReplyTo(data, messageId) {
+    replyingTo = {
+      id: messageId,
+      sender: data.sender,
+      text: data.text
+    };
+    updateReplyIndicator();
+    msgInput.focus();
+    
+    const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageEl) {
+      messageEl.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }
+  }
+
+  function clearReply() {
+    replyingTo = null;
+    updateReplyIndicator();
+  }
+
+  function updateReplyIndicator() {
+    replyContainer.innerHTML = '';
+    
+    if (replyingTo) {
+      const indicator = document.createElement("div");
+      indicator.className = "reply-indicator-active";
+      
+      const replyText = document.createElement("div");
+      replyText.style.flex = "1";
+      replyText.style.whiteSpace = "nowrap";
+      replyText.style.overflow = "hidden";
+      replyText.style.textOverflow = "ellipsis";
+      
+      const fullText = `Replying to ${replyingTo.sender}: ${replyingTo.text}`;
+      replyText.textContent = fullText;
+      replyText.title = fullText;
+      
+      const replyClose = document.createElement("button");
+      replyClose.className = "reply-close";
+      replyClose.innerHTML = "×";
+      replyClose.onclick = clearReply;
+      
+      indicator.appendChild(replyText);
+      indicator.appendChild(replyClose);
+      
+      replyContainer.appendChild(indicator);
+    }
+  }
+
+  const commonEmojis = ['❤️','😍','😘','🥰','🤤','😂','🙂','☺','🥹','👍','😐','😑','🙄','😒','😳','🥲'];
+  
+  function showEmojiPicker(button, messageId) {
+    const existingPicker = document.querySelector('.emoji-picker');
+    if (existingPicker) {
+      existingPicker.remove();
+      return;
+    }
+
+    const picker = document.createElement('div');
+    picker.className = 'emoji-picker';
+    
+    commonEmojis.forEach(emoji => {
+      const emojiBtn = document.createElement('button');
+      emojiBtn.className = 'emoji-option';
+      emojiBtn.textContent = emoji;
+      emojiBtn.setAttribute('aria-label', `React with ${emoji}`);
+      
+      emojiBtn.onclick = (e) => {
+        e.stopPropagation();
+        addReaction(messageId, emoji);
+        picker.remove();
+      };
+      picker.appendChild(emojiBtn);
+    });
+
+    const rect = button.getBoundingClientRect();
+    const pickerWidth = 280;
+    const pickerHeight = 200;
+    const padding = 12;
+    
+    let top, bottom;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    
+    if (spaceBelow >= pickerHeight + padding || spaceBelow > spaceAbove) {
+      top = rect.bottom + padding;
+      bottom = 'auto';
+    } else {
+      bottom = window.innerHeight - rect.top + padding;
+      top = 'auto';
+    }
+    
+    let left = rect.left + (rect.width / 2) - (pickerWidth / 2);
+    const rightEdge = left + pickerWidth;
+    
+    if (left < padding) {
+      left = padding;
+    } else if (rightEdge > window.innerWidth - padding) {
+      left = window.innerWidth - pickerWidth - padding;
+    }
+    
+    picker.style.top = top !== undefined ? `${top}px` : 'auto';
+    picker.style.bottom = bottom !== undefined ? `${bottom}px` : 'auto';
+    picker.style.left = `${left}px`;
+
+    document.body.appendChild(picker);
+    
+    const closePicker = (e) => {
+      if (!picker.contains(e.target) && !button.contains(e.target)) {
+        picker.remove();
+        document.removeEventListener('click', closePicker);
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        picker.remove();
+        document.removeEventListener('click', closePicker);
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    
+    setTimeout(() => {
+      document.addEventListener('click', closePicker);
+      document.addEventListener('keydown', handleEscape);
+    }, 100);
+  }
+
+  async function addReaction(messageId, emoji) {
+    if (!currentUser) return;
+
+    try {
+      const messageRef = doc(db, "messages", messageId);
+      const messageDoc = await getDoc(messageRef);
+      
+      if (!messageDoc.exists()) return;
+      
+      const messageData = messageDoc.data();
+      const reactions = messageData.reactions || {};
+      
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      
+      if (!reactions[emoji].includes(username)) {
+        reactions[emoji].push(username);
+        
+        await updateDoc(messageRef, {
+          reactions: reactions
+        });
+        
+        showReactionFeedback(messageId, emoji);
+      }
+    } catch (error) {
+    }
+  }
+
+  function showReactionFeedback(messageId, emoji) {
+    const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageEl) return;
+    
+  }
+
+  async function toggleReaction(messageId, emoji) {
+    if (!currentUser) return;
+
+    try {
+      const messageRef = doc(db, "messages", messageId);
+      const messageDoc = await getDoc(messageRef);
+      
+      if (!messageDoc.exists()) return;
+      
+      const messageData = messageDoc.data();
+      const reactions = messageData.reactions || {};
+      
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      
+      const userIndex = reactions[emoji].indexOf(username);
+      
+      if (userIndex > -1) {
+        reactions[emoji].splice(userIndex, 1);
+        if (reactions[emoji].length === 0) {
+          delete reactions[emoji];
+        }
+      } else {
+        reactions[emoji].push(username);
+      }
+      
+      await updateDoc(messageRef, {
+        reactions: reactions
+      });
+    } catch (error) {
+    }
+  }
+  
+  function showOptionsMenu(button, messageId, messageData) {
+      const existingMenu = document.querySelector('.options-menu');
+      if (existingMenu) {
+          existingMenu.remove();
+          return;
+      }
+
+      const menu = document.createElement('div');
+      menu.className = 'options-menu';
+
+      const editBtn = document.createElement('button');
+      editBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit`;
+      editBtn.onclick = (e) => {
+          e.stopPropagation();
+          editMessage(messageId, messageData);
+          menu.remove();
+      };
+      menu.appendChild(editBtn);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Delete`;
+      deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm("Are you sure you want to delete this message?")) {
+              deleteMessage(messageId);
+          }
+          menu.remove();
+      };
+      menu.appendChild(deleteBtn);
+
+      document.body.appendChild(menu);
+
+      const rect = button.getBoundingClientRect();
+      const menuWidth = 150;
+      const menuHeight = 90;
+      const padding = 8;
+
+      let top, left;
+
+      if (rect.top > menuHeight + padding) {
+          top = rect.top - menuHeight - 5;
+      } else {
+          top = rect.bottom + 5;
+      }
+
+      left = rect.left + (rect.width / 2) - (menuWidth / 2);
+
+      if (left + menuWidth > window.innerWidth - padding) {
+          left = window.innerWidth - menuWidth - padding;
+      }
+
+      if (left < padding) {
+          left = padding;
+      }
+      
+      if (top + menuHeight > window.innerHeight - padding) {
+          top = window.innerHeight - menuHeight - padding;
+      }
+      if (top < padding) {
+          top = padding;
+      }
+
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+      
+      setTimeout(() => {
+          menu.classList.add('show');
+      }, 0);
+
+
+      const closeMenu = (e) => {
+          if (!menu.contains(e.target) && !button.contains(e.target)) {
+              menu.remove();
+              document.removeEventListener('click', closeMenu);
+              document.removeEventListener('keydown', handleEscape);
+          }
+      };
+      
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          menu.remove();
+          document.removeEventListener('click', closeMenu);
+          document.removeEventListener('keydown', handleEscape);
+        }
+      };
+
+      setTimeout(() => {
+          document.addEventListener('click', closeMenu);
+          document.addEventListener('keydown', handleEscape);
+      }, 100);
+  }
+
+  async function editMessage(messageId, messageData) {
+      const newText = prompt("Edit your message:", messageData.text);
+      if (newText === null || newText.trim() === messageData.text.trim() || newText.trim() === "") {
+          return;
+      }
+
+      try {
+          const messageRef = doc(db, "messages", messageId);
+          await updateDoc(messageRef, {
+              text: newText.trim(),
+              edited: true
+          });
+      } catch (error) {
+          alert("Failed to edit message. " + error.message);
+      }
+  }
+
+  async function deleteMessage(messageId) {
+      try {
+          const messageRef = doc(db, "messages", messageId);
+          await deleteDoc(messageRef);
+      } catch (error) {
+          alert("Failed to delete message. " + error.message);
+      }
+  }
+
+  let loadMoreTimeout;
+  chatDiv.addEventListener('scroll', () => {
+    if (chatDiv.scrollTop === 0 && !isLoading && lastMessage) {
+      clearTimeout(loadMoreTimeout);
+      loadMoreTimeout = setTimeout(() => {
+        loadMoreMessages();
+      }, 300);
+    }
+  });
+
+  async function loadMoreMessages() {
+    if (isLoading || !lastMessage) return;
+    
+    isLoading = true;
+    try {
+      const moreQuery = query(msgsCol, orderBy("timestamp", "desc"), startAfter(lastMessage), limit(BATCH_SIZE));
+      const snapshot = await getDocs(moreQuery);
+      
+      if (!snapshot.empty) {
+        snapshot.docs.forEach(doc => {
+          const data = doc.data();
+          if (!document.querySelector(`[data-message-id="${doc.id}"]`)) {
+            const msgEl = createMessageElement(data, doc.id);
+            chatDiv.insertBefore(msgEl, chatDiv.firstChild);
+          }
+        });
+        
+        lastMessage = snapshot.docs[snapshot.docs.length - 1];
+      }
+    } catch (error) {
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  function formatShortTimestamp(ts) {
+    if (!ts) return '';
+    let date;
+    if (ts.seconds) {
+      date = new Date(ts.seconds * 1000);
+    } else if (ts instanceof Date) {
+      date = ts;
+    } else {
+      date = new Date();
+    }
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if (now.toDateString() === date.toDateString()) {
+      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    return date.toLocaleDateString([], {month: 'short', day: 'numeric'});
+  }
+
+  function autoResizeTextarea() {
+    msgInput.style.height = 'auto';
+    const scrollHeight = msgInput.scrollHeight;
+    const minHeight = 24;
+    const maxHeight = 120;
+    
+    if (scrollHeight <= minHeight) {
+      msgInput.style.height = minHeight + 'px';
+    } else if (scrollHeight >= maxHeight) {
+      msgInput.style.height = maxHeight + 'px';
+    } else {
+      msgInput.style.height = scrollHeight + 'px';
+    }
+  }
+  
+  function detectTextDirection(text) {
+    const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return arabicRegex.test(text) ? 'rtl' : 'ltr';
+  }
+  
+  msgInput.addEventListener("input", () => {
+    autoResizeTextarea();
+    
+    const text = msgInput.value;
+    const direction = detectTextDirection(text);
+    msgInput.style.direction = direction;
+    msgInput.style.textAlign = direction === 'rtl' ? 'right' : 'left';
+  });
+
+
+  document.addEventListener('keydown', (e) => {
+
+    if (e.key === 'Escape' && replyingTo) {
+      clearReply();
+      e.preventDefault();
+    }
+    
+    if (e.key === 'Escape') {
+      const emojiPicker = document.querySelector('.emoji-picker');
+      if (emojiPicker) {
+        emojiPicker.remove();
+      }
+    }
+  });
+  
+  msgInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      msgForm.dispatchEvent(new Event('submit'));
+    }
+    autoResizeTextarea();
+  });
+  
+  msgForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = msgInput.value.trim();
+    if (!text || !currentUser) return;
+
+    const submitBtn = msgForm.querySelector('button[type="submit"]');
+    const originalContent = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<div class="loading"></div>';
+    submitBtn.disabled = true;
+
+    try {
+      const messageData = {
+        text,
+        sender: username.charAt(0).toUpperCase() + username.slice(1).toLowerCase(),
+        timestamp: serverTimestamp()
+      };
+      
+
+      if (replyingTo) {
+        messageData.replyTo = {
+          id: replyingTo.id,
+          sender: replyingTo.sender,
+          text: replyingTo.text
+        };
+      }
+      
+      const docRef = await addDoc(msgsCol, messageData);
+      
+      msgInput.value = "";
+      msgInput.style.height = '24px';
+      msgInput.style.direction = 'ltr';
+      msgInput.style.textAlign = 'left';
+      autoResizeTextarea();
+
+      clearReply();
+      
+    } catch (error) {
+      alert("Failed to send message. Please try again.");
+    } finally {
+      submitBtn.innerHTML = originalContent; 
+      submitBtn.disabled = false;
+    }
+  });
+
+  if (navigator.connection) {
+    const connection = navigator.connection;
+    if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+    } else {
+    }
+  });
+
+  window.addEventListener('online', () => {
+    isOnline = true;
+  });
+
+  window.addEventListener('offline', () => {
+    isOnline = false;
+  });
+
+
+  window.addEventListener('beforeunload', () => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
+
+  const htmlEl = document.documentElement;
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  const themeIcon = document.getElementById('theme-icon');
+
+  function getTheme() {
+      return localStorage.getItem('theme') || 'dark';
+  }
+
+  function setTheme(theme) {
+      htmlEl.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      updateThemeIcon(theme);
+  }
+
+  function updateThemeIcon(theme) {
+      if (theme === 'dark') {
+          themeIcon.innerHTML = `
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          `;
+      } else {
+          themeIcon.innerHTML = `
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          `;
+      }
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = getTheme();
+        const newTheme = currentTheme === 'dark' ? 'bright' : 'dark';
+        setTheme(newTheme);
+    });
+  }
+  
+  setTheme(getTheme());
+  
+</script>
+</body>
+</html>
