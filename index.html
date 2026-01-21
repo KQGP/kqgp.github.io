@@ -834,6 +834,201 @@
         border-top-color: #fff;
     }
 
+    .search-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .search-modal.show {
+      display: flex;
+    }
+
+    .search-modal-content {
+      width: 100%;
+      max-width: 600px;
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      margin-top: 10vh;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .search-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .search-input-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input-container:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--user-accent-color) 20%, transparent);
+    }
+
+    #search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    #search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .search-close-btn:hover {
+      background: var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    .search-results {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      max-height: calc(80vh - 100px);
+    }
+
+    .search-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .search-results::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .search-results::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 3px;
+    }
+
+    .search-result-item {
+      padding: 12px 16px;
+      margin: 4px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .search-result-item:hover {
+      background: var(--input-bg);
+      border-color: var(--border-subtle);
+    }
+
+    .search-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .search-result-sender {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .search-result-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .search-result-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .search-highlight {
+      background: color-mix(in srgb, var(--user-accent-color) 30%, transparent);
+      color: var(--text-primary);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    html[data-theme="bright"] .search-highlight {
+      background: color-mix(in srgb, var(--user-accent-color) 20%, white);
+    }
+
+    .search-no-results {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .search-result-count {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    @media (max-width: 767px) {
+      .search-modal {
+        padding: 0;
+      }
+
+      .search-modal-content {
+        border-radius: 0;
+        margin-top: 0;
+        max-height: 100vh;
+      }
+
+      .search-header {
+        padding: 16px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -842,6 +1037,12 @@
     <div id="header">
       <div id="title">LiZi <span id="subtitle" style="margin-left: 8px;">Connecting...</span></div>
       <div class="header-actions">
+        <button id="search-toggle-btn" class="logout-btn" title="Search Messages" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
         <button id="theme-toggle-btn" class="logout-btn" title="Toggle Theme">
             <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -853,6 +1054,27 @@
     
     <div id="chat">
       </div>
+    
+    <div id="search-modal" class="search-modal">
+      <div class="search-modal-content">
+        <div class="search-header">
+          <div class="search-input-container">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search messages..." autocomplete="off">
+            <button id="search-close-btn" class="search-close-btn" title="Close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
     
     <form id="msgForm">
       <div id="replyContainer"></div>
@@ -886,11 +1108,17 @@
 
   let username = null;
   let currentUser = null;
+  let allMessages = []; // Store all messages for search
 
   const chatDiv = document.getElementById("chat");
   const msgForm = document.getElementById("msgForm");
   const msgInput = document.getElementById("msgInput");
   const replyContainer = document.getElementById("replyContainer");
+  const searchModal = document.getElementById("search-modal");
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
+  const searchToggleBtn = document.getElementById("search-toggle-btn");
+  const searchCloseBtn = document.getElementById("search-close-btn");
 
 
   const loginContainer = document.createElement("div");
@@ -1018,6 +1246,10 @@
     if (logoutBtn) {
       logoutBtn.style.display = "flex";
       logoutBtn.onclick = logoutUser;
+    }
+
+    if (searchToggleBtn) {
+      searchToggleBtn.style.display = "flex";
     }
   }
 
@@ -1150,16 +1382,13 @@
 
   showLoginScreen();
 
-  const MESSAGE_LIMIT = 20;
-  const BATCH_SIZE = 10;
-  let lastMessage = null;
-  let isLoading = false;
   let isOnline = navigator.onLine;
   let replyingTo = null;
 
   const msgsCol = collection(db, "messages");
   
-  const msgsQuery = query(msgsCol, orderBy("timestamp", "desc"), limit(MESSAGE_LIMIT));
+  // Realtime listener over the full history (all messages)
+  const msgsQuery = query(msgsCol, orderBy("timestamp", "asc"));
 
   let unsubscribe;
   
@@ -1171,18 +1400,20 @@
         (snapshot) => {
           chatDiv.innerHTML = '';
           
-          const reversedDocs = [...snapshot.docs].reverse();
+          const docs = snapshot.docs;
+
+          // Store all messages for search (entire history)
+          allMessages = docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
           
-          reversedDocs.forEach((doc) => {
+          docs.forEach((doc) => {
             const data = doc.data();
             const msgEl = createMessageElement(data, doc.id);
             chatDiv.appendChild(msgEl);
           });
-          
-          if (snapshot.docs.length > 0) {
-            lastMessage = snapshot.docs[snapshot.docs.length - 1];
-          }
-          
+
           chatDiv.scrollTop = chatDiv.scrollHeight;
         },
         (error) => {
@@ -1647,40 +1878,8 @@
       }
   }
 
-  let loadMoreTimeout;
-  chatDiv.addEventListener('scroll', () => {
-    if (chatDiv.scrollTop === 0 && !isLoading && lastMessage) {
-      clearTimeout(loadMoreTimeout);
-      loadMoreTimeout = setTimeout(() => {
-        loadMoreMessages();
-      }, 300);
-    }
-  });
-
-  async function loadMoreMessages() {
-    if (isLoading || !lastMessage) return;
-    
-    isLoading = true;
-    try {
-      const moreQuery = query(msgsCol, orderBy("timestamp", "desc"), startAfter(lastMessage), limit(BATCH_SIZE));
-      const snapshot = await getDocs(moreQuery);
-      
-      if (!snapshot.empty) {
-        snapshot.docs.forEach(doc => {
-          const data = doc.data();
-          if (!document.querySelector(`[data-message-id="${doc.id}"]`)) {
-            const msgEl = createMessageElement(data, doc.id);
-            chatDiv.insertBefore(msgEl, chatDiv.firstChild);
-          }
-        });
-        
-        lastMessage = snapshot.docs[snapshot.docs.length - 1];
-      }
-    } catch (error) {
-    } finally {
-      isLoading = false;
-    }
-  }
+  // All messages are now loaded via the realtime listener, so
+  // we no longer need incremental "load more" scrolling logic.
 
   function formatShortTimestamp(ts) {
     if (!ts) return '';
@@ -1871,6 +2070,163 @@
   }
   
   setTheme(getTheme());
+
+  // Search functionality
+  function openSearchModal() {
+    if (!searchModal) return;
+
+    searchModal.classList.add('show');
+
+    // Clear previous results; search always uses the current allMessages
+    if (searchResults) {
+      searchResults.innerHTML = '';
+    }
+
+    if (searchInput) {
+      setTimeout(() => {
+        searchInput.focus();
+      }, 100);
+    }
+  }
+
+  function closeSearchModal() {
+    searchModal.classList.remove('show');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+  }
+
+  function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    
+    // Simple, safe case-insensitive highlighting without dynamic RegExp
+    const lowerText = text.toLowerCase();
+    const lowerSearch = searchTerm.toLowerCase();
+    const index = lowerText.indexOf(lowerSearch);
+
+    if (index === -1) return text;
+
+    const before = text.slice(0, index);
+    const match = text.slice(index, index + searchTerm.length);
+    const after = text.slice(index + searchTerm.length);
+
+    return `${before}<span class="search-highlight">${match}</span>${after}`;
+  }
+
+  function performSearch(query) {
+    if (!query || query.trim().length === 0) {
+      searchResults.innerHTML = '';
+      return;
+    }
+
+    const searchTerm = query.trim().toLowerCase();
+    const results = allMessages.filter(msg => {
+      const text = (msg.text || '').toLowerCase();
+      const sender = (msg.sender || '').toLowerCase();
+      return text.includes(searchTerm) || sender.includes(searchTerm);
+    });
+
+    displaySearchResults(results, searchTerm);
+  }
+
+  function displaySearchResults(results, searchTerm) {
+    if (results.length === 0) {
+      searchResults.innerHTML = '<div class="search-no-results">No messages found</div>';
+      return;
+    }
+
+    let html = `<div class="search-result-count">Found ${results.length} ${results.length === 1 ? 'message' : 'messages'}</div>`;
+    
+    results.forEach(msg => {
+      const timestamp = msg.timestamp ? formatShortTimestamp(msg.timestamp) : '--:--';
+      const highlightedText = highlightText(msg.text || '', searchTerm);
+      const sender = msg.sender || 'Unknown';
+      
+      html += `
+        <div class="search-result-item" data-message-id="${msg.id}">
+          <div class="search-result-header">
+            <span class="search-result-sender">${sender}</span>
+            <span class="search-result-time">${timestamp}</span>
+          </div>
+          <div class="search-result-text">${highlightedText}</div>
+        </div>
+      `;
+    });
+
+    searchResults.innerHTML = html;
+
+    // Add click handlers to scroll to messages
+    document.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const messageId = item.getAttribute('data-message-id');
+        scrollToMessage(messageId);
+        closeSearchModal();
+      });
+    });
+  }
+
+  function scrollToMessage(messageId) {
+    const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageEl) {
+      messageEl.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Highlight the message briefly
+      messageEl.style.transition = 'background-color 0.3s';
+      const originalBg = messageEl.style.backgroundColor;
+      messageEl.style.backgroundColor = 'color-mix(in srgb, var(--user-accent-color) 20%, transparent)';
+      
+      setTimeout(() => {
+        messageEl.style.backgroundColor = originalBg;
+        setTimeout(() => {
+          messageEl.style.transition = '';
+        }, 300);
+      }, 2000);
+    }
+  }
+
+  // Event listeners for search (guarded for safety)
+  if (searchToggleBtn) {
+    searchToggleBtn.addEventListener('click', openSearchModal);
+  }
+
+  if (searchCloseBtn) {
+    searchCloseBtn.addEventListener('click', closeSearchModal);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      performSearch(e.target.value);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSearchModal();
+      }
+    });
+  }
+
+  if (searchModal) {
+    // Close search modal when clicking outside
+    searchModal.addEventListener('click', (e) => {
+      if (e.target === searchModal) {
+        closeSearchModal();
+      }
+    });
+  }
+
+  // Keyboard shortcut: Ctrl/Cmd + K to open search
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      if (searchModal && searchModal.classList.contains('show')) {
+        closeSearchModal();
+      } else {
+        openSearchModal();
+      }
+    }
+  });
   
 </script>
 </body>
